@@ -14,7 +14,7 @@ Coded by www.creative-tim.com
 */
 
 // react-router-dom components
-import { Link } from "react-router-dom";
+
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -32,11 +32,41 @@ import MDButton from "components/MDButton";
 
 // Authentication layout components
 import CoverLayout from "layouts/authentication/components/CoverLayout";
-
+import { Link ,useNavigate } from "react-router-dom";
+import { useState } from "react";
 // Images
 import bgImage from "assets/images/bg-sign-up-cover.jpeg";
+import axios from "axios";
 
 function Cover() {
+ 
+const [name, setName] = useState("");
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+const [userRole, setRole] = useState("PATIENT");
+const navigate = useNavigate();
+async function signUp() {
+  try{
+  const response=   await axios.post("http://localhost:8080/auth/signup",{
+    username:name,
+    email,
+    password,
+    role:userRole
+   })
+   
+   alert(`${response.data.role}'S  ${response.data.message}`)
+
+   if(response.data.role =="PATIENT" ||response.data.role =="HOSPITAL" || response.data.role =="INSURANCE" ){
+      navigate("/authentication/sign-in")
+   }
+  
+  }
+  catch(err){
+    console.log(err.response.data.message);
+    alert(err.response.data.message);
+  }
+}
+
   return (
     <CoverLayout image={bgImage}>
       <Card>
@@ -61,48 +91,29 @@ function Cover() {
         <MDBox pt={4} pb={3} px={3}>
           <MDBox component="form" role="form">
             <MDBox mb={2}>
-              <MDInput type="text" label="Name" variant="standard" fullWidth />
+              <MDInput onChange={(e) => setName(e.target.value)} type="text" label="Name" variant="standard" fullWidth />
             </MDBox>
             <MDBox mb={2}>
-              <MDInput type="email" label="Email" variant="standard" fullWidth />
+              <MDInput  onChange={(e) => setEmail(e.target.value)}  type="email" label="Email" variant="standard" fullWidth />
             </MDBox>
             <MDBox mb={2}>
-              <MDInput type="password" label="Password" variant="standard" fullWidth />
+              <MDInput onChange={(e) => setPassword(e.target.value)} type="password" label="Password" variant="standard" fullWidth />
             </MDBox>
             <MDBox mb={2}>
               <FormControl fullWidth variant="standard">
                 <InputLabel>Role</InputLabel>
-                <Select defaultValue="Patient">
-                  <MenuItem value="Patient">Patient</MenuItem>
-                  <MenuItem value="Hospital">Hospital</MenuItem>
-                  <MenuItem value="Insurance">Insurance</MenuItem>
+                <Select value={userRole} onChange={(e) => setRole(e.target.value)} defaultValue="PATIENT">
+                  <MenuItem value="PATIENT">PATIENT</MenuItem>
+                  <MenuItem value="HOSPITAL">HOSPITAL</MenuItem>
+                  <MenuItem value="INSURANCE">INSURANCE</MenuItem>
+                  <MenuItem value="DEALER">DEALER</MenuItem>
                 </Select>
               </FormControl>
             </MDBox>
-            <MDBox display="flex" alignItems="center" ml={-1}>
-              <Checkbox />
-              <MDTypography
-                variant="button"
-                fontWeight="regular"
-                color="text"
-                sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
-              >
-                &nbsp;&nbsp;I agree the&nbsp;
-              </MDTypography>
-              <MDTypography
-                component="a"
-                href="#"
-                variant="button"
-                fontWeight="bold"
-                color="info"
-                textGradient
-              >
-                Terms and Conditions
-              </MDTypography>
-            </MDBox>
+          
             <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth>
-                sign in
+              <MDButton onClick={signUp} variant="gradient" color="info" fullWidth>
+                sign up
               </MDButton>
             </MDBox>
             <MDBox mt={3} mb={1} textAlign="center">
