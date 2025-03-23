@@ -13,4 +13,191 @@ datasource db {
   url      = "postgresql://supplyChain_owner:npg_4hv8iMABRnzs@ep-jolly-bush-a54347q7-pooler.us-east-2.aws.neon.tech/supplyChain?sslmode=require"
 }
 
+model Patient {
+  P_ID          Int     @id @default(autoincrement())
+  First_Name    String
+  Middle_Name   String?
+  Last_Name     String
+  Date_of_Birth DateTime
+  Email_ID      String  @unique
+  phone         String?
+  address       String?
+  records       Record[]
+}
 
+model Admin {
+  ID        Int    @id @default(autoincrement())
+  Email_ID  String @unique
+  Username  String @default("admin")
+  Password  String @default("admin")
+}
+
+model Dealer {
+  id         Int     @id @default(autoincrement())
+  FirstName  String
+  LastName   String
+  Email      String  @unique
+  DOB        DateTime
+  Gender     String
+  Mobile     String  @unique
+  Password   String  @default("ot") @db.VarChar(8)
+  Status     String
+}
+
+model Hospital {
+  Patient_ID Int     @id @unique
+  Email_ID   String  @unique
+  Mobile     String  @unique
+  Password   String
+  Address    String
+  Gender     String
+}
+
+model HospitalInfo {
+  Patient_ID       Int     @id @unique
+  PatientEmail     String  @unique
+  InsuranceCompany String
+  PolicyName       String
+  Months           Int
+  CoverageMsg      String
+  HospitalEmailID  String  @unique
+}
+
+model Blockchain {
+  Transaction_ID Int      @id @default(autoincrement())
+  HospitalEmailID String  @unique
+  BlockData      String
+  CurrentTime    DateTime @default(now())
+}
+
+model Insurance {
+  T_ID           Int     @id @default(autoincrement())
+  PatientName    String
+  PatientEmail   String  @unique
+  CompanyName    String
+  Mobile_Number  String
+  Website        String?
+  Address        String
+  Policy_No      String  @unique
+  Policy_Name    String
+  Policy_Tenue   Int
+  Base_Premium   Float
+  Coverage_Info  String
+  Policy_Amount  Float
+  Email_IDs      String
+}
+
+model InsuranceInfo {
+  I_IDs          Int     @id @default(autoincrement())
+  PatientName    String
+  PatientEmail   String  @unique
+  InsuranceCompany String
+  Policy_Name    String
+  Months         Int
+  Coverage_Msg   String
+}
+
+model PatientInsurance {
+  ID_Patient  Int     @id @default(autoincrement())
+  Name        String
+  Email_IDs   String  @unique
+  Mobile_No   String  @unique
+  Passwords   String
+  Address     String
+  Gender      String
+}
+
+model InsuranceDetails {
+  T_ID          Int     @id @default(autoincrement())
+  Email_IDs     String  @unique
+  CompanyName   String
+  Mobile_Number String  @unique
+  Website       String?
+  Address       String
+  Policy_No     String  @unique
+  Policy_Name   String
+  Policy_Tenue  Int
+  Base_Premium  Float
+  Coverage_Info String
+  Policy_Amount Float
+}
+
+model Master {
+  Trans_ID         Int     @id @default(autoincrement())
+  Transaction_Hash String  @unique
+  FromName         String
+  ToName           String
+  NonceData        String
+  PreViewHash      String
+  DiseaseFirst     String
+  DiseaseSecond    String
+  DiseaseThird     String
+  DiseaseFour      String
+  DiseaseFive      String
+  DiseaseSix       String
+}
+
+model NewPatients {
+  PID            Int     @id @default(autoincrement())
+  First_Name     String
+  Middle_Name    String
+  Last_Name      String
+  Birth_Of_Date  DateTime
+  DiseaseFirst   String
+  DiseaseSecond  String
+  DiseaseThird   String
+  DiseaseFour    String
+  DiseaseFive    String
+  DiseaseSix     String
+  Email_ID       String  @unique
+  Date_Show      DateTime @default(now())
+}
+
+model Medicine {
+  M_ID          Int     @id @default(autoincrement())
+  OrderId     String  @unique
+  Email_ID    String
+  Hospital    String
+  MedName     String
+  SubMedName  String?
+  Company     String
+  Quantity    Int
+  CreateDate  DateTime
+  CreateTime  DateTime @default(now())
+  Cost        Float
+  TrackingId  String  @unique
+}
+
+model Register {
+  Patient_ID    Int     @id @default(autoincrement())
+  Name          String
+  Email_IDs     String  @unique
+  Mobile_No     String  @unique
+  Passwords     String
+  Address       String
+  Gender        String
+  Hospital_Name String
+}
+
+model ShipProduct {
+  id            Int     @id @default(autoincrement())
+  TrackingId    String  @unique
+  Email_ID      String
+  HospitalName  String
+  TotalProduct  Int
+  Cost          Float
+  Status        String
+  DealerName    String
+  OTP           Int     @db.UnsignedSmallInt
+  Payment       String
+}
+
+model Tracking {
+  id            Int     @id @default(autoincrement())
+  TrackingId    String  @unique
+  DealerName    String
+  TotalProduct  Int
+  CDate         DateTime
+  Time          DateTime @default(now())
+  Status        String
+}
