@@ -14,7 +14,6 @@ Coded by www.creative-tim.com
 */
 
 // react-router-dom components
-import { Link } from "react-router-dom";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -35,8 +34,38 @@ import CoverLayout from "layouts/authentication/components/CoverLayout";
 
 // Images
 import bgImage from "assets/images/bg-sign-up-cover.jpeg";
+import { Link ,useNavigate } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
+
 
 function Cover() {
+
+  
+const [name, setName] = useState("");
+const [password, setPassword] = useState("");
+const [userRole, setRole] = useState("PATIENT");
+const navigate = useNavigate();
+async function signIp() {
+  try{
+  const response=   await axios.post("http://localhost:8080/auth/signin",{
+    username:name,
+    password,
+    role:userRole
+   })
+    
+    localStorage.setItem(response.data.role,response.data.token);
+    alert(`${response.data.role}'S  ${response.data.message}`)
+   
+  }
+  catch(err){
+    console.log(err.response.data.message);
+    alert( +err.response.data.message );
+  }
+}
+
+
+
   return (
     <CoverLayout image={bgImage}>
       <Card>
@@ -52,74 +81,39 @@ function Cover() {
           textAlign="center"
         >
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Join us today
+            SIGN IN
           </MDTypography>
           <MDTypography display="block" variant="button" color="white" my={1}>
-            Enter your email and password to register
+            Enter your email and password
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
           <MDBox component="form" role="form">
             <MDBox mb={2}>
-              <MDInput type="text" label="Name" variant="standard" fullWidth />
+              <MDInput onChange={(e) => setName(e.target.value)} type="text" label="Name" variant="standard" fullWidth />
             </MDBox>
+           
             <MDBox mb={2}>
-              <MDInput type="email" label="Email" variant="standard" fullWidth />
-            </MDBox>
-            <MDBox mb={2}>
-              <MDInput type="password" label="Password" variant="standard" fullWidth />
+              <MDInput onChange={(e) => setPassword(e.target.value)} type="password" label="Password" variant="standard" fullWidth />
             </MDBox>
             <MDBox mb={2}>
               <FormControl fullWidth variant="standard">
                 <InputLabel>Role</InputLabel>
-                <Select defaultValue="Patient">
-                  <MenuItem value="Patient">Patient</MenuItem>
-                  <MenuItem value="Hospital">Hospital</MenuItem>
-                  <MenuItem value="Insurance">Insurance</MenuItem>
+                <Select value={userRole} onChange={(e) => setRole(e.target.value)} defaultValue="PATIENT">
+                  <MenuItem value="PATIENT">PATIENT</MenuItem>
+                  <MenuItem value="HOSPITAL">HOSPITAL</MenuItem>
+                  <MenuItem value="INSURANCE">INSURANCE</MenuItem>
+                  <MenuItem value="DEALER">DEALER</MenuItem>
                 </Select>
               </FormControl>
             </MDBox>
-            <MDBox display="flex" alignItems="center" ml={-1}>
-              <Checkbox />
-              <MDTypography
-                variant="button"
-                fontWeight="regular"
-                color="text"
-                sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
-              >
-                &nbsp;&nbsp;I agree the&nbsp;
-              </MDTypography>
-              <MDTypography
-                component="a"
-                href="#"
-                variant="button"
-                fontWeight="bold"
-                color="info"
-                textGradient
-              >
-                Terms and Conditions
-              </MDTypography>
-            </MDBox>
+            
             <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth>
+              <MDButton onClick={signIp} variant="gradient" color="info" fullWidth>
                 sign in
               </MDButton>
             </MDBox>
-            <MDBox mt={3} mb={1} textAlign="center">
-              <MDTypography variant="button" color="text">
-                Already have an account?{" "}
-                <MDTypography
-                  component={Link}
-                  to="/authentication/sign-in"
-                  variant="button"
-                  color="info"
-                  fontWeight="medium"
-                  textGradient
-                >
-                  Sign In
-                </MDTypography>
-              </MDTypography>
-            </MDBox>
+            
           </MDBox>
         </MDBox>
       </Card>
