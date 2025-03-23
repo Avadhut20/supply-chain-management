@@ -7,19 +7,23 @@ const router = express.Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 router.post("/signup", async (req, res) => {
-  const { username, password, role } = req.body;
+  const { username, email,password, role } = req.body;
 
  
-  if (!username || !password || !role) {
+  if (!username || !password || !role || !email) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
     
     const existingUser = await prisma.user.findFirst({
-        where: {
-          username: req.body.username, 
-        },
+      where: {
+        OR: [
+          { username: req.body.username },
+          { email: req.body.email }
+        ]
+      }
+    
       });
 
     if (existingUser) {
@@ -38,9 +42,9 @@ router.post("/signup", async (req, res) => {
 
 
 router.post("/signin", async (req, res) => {
-  const { username, password } = req.body;
+  const { username,password, role } = req.body;
 
-  if (!username || !password) {
+  if (!username || !password ||!role ) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
