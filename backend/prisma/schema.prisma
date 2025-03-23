@@ -1,0 +1,16 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://supplyChain_owner:npg_4hv8iMABRnzs@ep-jolly-bush-a54347q7-pooler.us-east-2.aws.neon.tech/supplyChain?sslmode=require"
+}
+
+
