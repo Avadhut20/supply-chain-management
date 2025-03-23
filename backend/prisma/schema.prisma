@@ -12,6 +12,12 @@ datasource db {
   provider = "postgresql"
   url      = "postgresql://supplyChain_owner:npg_4hv8iMABRnzs@ep-jolly-bush-a54347q7-pooler.us-east-2.aws.neon.tech/supplyChain?sslmode=require"
 }
+enum Role{
+  DEALER
+  HOSPITAL
+  INSURANCE
+  PATIENT
+}
 
 model Patient {
   P_ID          Int     @id @default(autoincrement())
@@ -22,7 +28,14 @@ model Patient {
   Email_ID      String  @unique
   phone         String?
   address       String?
-  records       Record[]
+}
+model User{
+  id Int @id @default(autoincrement())
+  username String
+  password String
+  role Role
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
 }
 
 model Admin {
@@ -188,7 +201,7 @@ model ShipProduct {
   Cost          Float
   Status        String
   DealerName    String
-  OTP           Int     @db.UnsignedSmallInt
+  OTP           Int     
   Payment       String
 }
 
