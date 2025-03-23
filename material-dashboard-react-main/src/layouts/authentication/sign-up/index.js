@@ -19,6 +19,10 @@ import { Link } from "react-router-dom";
 // @mui material components
 import Card from "@mui/material/Card";
 import Checkbox from "@mui/material/Checkbox";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -64,6 +68,16 @@ function Cover() {
             </MDBox>
             <MDBox mb={2}>
               <MDInput type="password" label="Password" variant="standard" fullWidth />
+            </MDBox>
+            <MDBox mb={2}>
+              <FormControl fullWidth variant="standard">
+                <InputLabel>Role</InputLabel>
+                <Select defaultValue="Patient">
+                  <MenuItem value="Patient">Patient</MenuItem>
+                  <MenuItem value="Hospital">Hospital</MenuItem>
+                  <MenuItem value="Insurance">Insurance</MenuItem>
+                </Select>
+              </FormControl>
             </MDBox>
             <MDBox display="flex" alignItems="center" ml={-1}>
               <Checkbox />
