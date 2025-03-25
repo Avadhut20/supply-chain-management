@@ -1,35 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+
 import './App.css'
 
+import { useState } from 'react'
+import {Routes, Route, BrowserRouter,Link,Outlet,useNavigate} from "react-router-dom"
+import Dashboard from './components/Dashboard'
+import PatientSignup from "./SignUps/patientSignup"
+import HospitalSignup from './SignUps/HospitalSignup';
+import InsuranceSignup from './SignUps/InsuranceSignup';
+import AdminSignup from './SignUps/AdminSignup';
+import DealerSignup from './SignUps/DealerSignup';
+import SignIn from './SignUps/SignIn'
+import Layout from './components/Layout'
 function App() {
-  const [count, setCount] = useState(0)
-
+ 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<Layout />}>
+          <Route path='/PatientSignup' element={<PatientSignup />} />
+          <Route path='/HospitalSignup' element={<HospitalSignup />} />
+          <Route path='/InsuranceSignup' element={<InsuranceSignup />} />
+          <Route path='/AdminSignup' element={<AdminSignup />} />
+          <Route path='/DealerSignup' element={<DealerSignup />} />
+          <Route path='/SignIn' element={<SignIn />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  </div>
+       )
 }
 
 export default App
