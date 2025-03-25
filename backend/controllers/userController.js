@@ -21,10 +21,7 @@ router.post("/signup", async (req, res) => {
     
     const existingUser = await prisma.user.findFirst({
       where: {
-    
-      
             email:req.body.email
-    
       }
     
       });
@@ -50,9 +47,7 @@ router.post("/signin", async (req, res) => {
   if (!email || !password ||!role ) {
     return res.status(400).json({ message: "All fields are required" });
   }
-
   try {
-    
     const user = await prisma.user.findFirst({
         where: {
           AND: [
