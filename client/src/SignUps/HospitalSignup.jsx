@@ -2,7 +2,7 @@ import React from 'react'
 
 function HospitalSignup() {
   return (
-    <div>HospitalSignup</div>
+    <div className='w-screen h-screen'>HospitalSignup</div>
   )
 }
 
