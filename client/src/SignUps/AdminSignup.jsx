@@ -5,7 +5,7 @@ import React from 'react'
 
 function AdminSignup() {
   return (
-    <div>AdminSignup</div>
+    <div className='w-screen h-screen'>AdminSignup</div>
   )
 }
 

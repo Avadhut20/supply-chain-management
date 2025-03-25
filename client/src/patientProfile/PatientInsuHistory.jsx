@@ -4,7 +4,7 @@ import React from 'react'
 
 function PatientInsuHistory() {
   return (
-    <div>PatientInsuHistory</div>
+    <div className='w-screen h-screen'> PatientInsuHistory</div>
   )
 }
 

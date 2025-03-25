@@ -17,7 +17,7 @@ const location = useLocation();
           <Link
             key={index}
             to={item.path}
-            className={ `block ${location.pathname == item.path ? "bg-blue-300":""} px-4 py-3 rounded-lg hover:bg-white/50 transition`}
+            className={ `block ${location.pathname == item.path ? "bg-white/50":""} px-4 py-3 rounded-lg hover:bg-blue-300transition`}
           >
             {item.label}
             {console.log("path " +  item.path)}

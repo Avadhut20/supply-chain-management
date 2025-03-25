@@ -2,7 +2,7 @@ import React from 'react'
 
 function PatientMedTrack() {
   return (
-    <div>PatientMedTrack</div>
+    <div className='w-screen h-screen'>PatientMedTrack</div>
   )
 }
 

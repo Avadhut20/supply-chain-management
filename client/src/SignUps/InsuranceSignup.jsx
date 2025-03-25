@@ -2,7 +2,7 @@ import React from 'react'
 
 function InsuranceSignup() {
   return (
-    <div>InsuranceSignup</div>
+    <div className='w-screen h-screen'>InsuranceSignup</div>
   )
 }
 
