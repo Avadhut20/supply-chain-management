@@ -9,11 +9,11 @@ const app = express();
 const prisma = new PrismaClient();
 
 app.use(express.json());
-
 app.use(cors());
 // app.use("/auth", user);
 app.use("/patient", Patient);
 app.use("/hospital", Hospital);
+
 
 app.get("/protected", async (req, res) => {
   const user = req.headers.authorization;

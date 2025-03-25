@@ -5,6 +5,7 @@ const cors = require("cors");
 const router = express.Router();
 router.use(cors());
 
+
 const prisma = new PrismaClient();
 
 router.post("/signup", async (req, res) => {
@@ -52,3 +53,4 @@ router.get("/hospitalsnames", async (req, res) => {
     }
 });
 module.exports = router; // Export the route
+  
