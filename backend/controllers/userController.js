@@ -21,10 +21,10 @@ router.post("/signup", async (req, res) => {
     
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [
-          { username: req.body.username },
-          { email: req.body.email }
-        ]
+    
+      
+            email:req.body.email
+    
       }
     
       });
@@ -45,9 +45,9 @@ router.post("/signup", async (req, res) => {
 
 
 router.post("/signin", async (req, res) => {
-  const { username,password, role } = req.body;
+  const { email,password, role } = req.body;
 
-  if (!username || !password ||!role ) {
+  if (!email || !password ||!role ) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -55,7 +55,12 @@ router.post("/signin", async (req, res) => {
     
     const user = await prisma.user.findFirst({
         where: {
-          username: req.body.username, 
+          AND: [
+            { email: req.body.email },
+            { role: req.body.role }
+          ]
+          
+          
         },
       });
 
