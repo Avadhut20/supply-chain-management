@@ -1,6 +1,8 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const user = require("./controllers/userController");
+const Patient = require("./controllers/patientController");
+const Hospital = require("./controllers/hospitalController");
 const cors  = require("cors");
  
 const app = express();
@@ -9,7 +11,9 @@ const prisma = new PrismaClient();
 app.use(express.json());
 
 app.use(cors());
-app.use("/auth", user);
+// app.use("/auth", user);
+app.use("/patient", Patient);
+app.use("/hospital", Hospital);
 
 app.get("/protected", async (req, res) => {
   const user = req.headers.authorization;

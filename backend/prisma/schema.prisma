@@ -22,12 +22,16 @@ enum Role{
 model Patient {
   P_ID          Int     @id @default(autoincrement())
   First_Name    String
-  Middle_Name   String?
   Last_Name     String
   Date_of_Birth DateTime
   Email_ID      String  @unique
-  phone         String?
-  address       String?
+  phone         String
+  address       String
+  Password      String
+  Gender        String
+  hospitalName  String
+  // Define the relation: the local field is "hospitalName" and it references the "Hosptial_Name" in Hospital model
+  Hospital      Hospital @relation(fields: [hospitalName], references: [Hosptial_Name])
 }
 model User{
   id Int @id @default(autoincrement())
@@ -59,12 +63,13 @@ model Dealer {
 }
 
 model Hospital {
-  Patient_ID Int     @id @unique
+  Hosptial_id Int     @id @default(autoincrement())
+  Hosptial_Name String @unique
   Email_ID   String  @unique
   Mobile     String  @unique
   Password   String
   Address    String
-  Gender     String
+  Patients      Patient[] 
 }
 
 model HospitalInfo {
