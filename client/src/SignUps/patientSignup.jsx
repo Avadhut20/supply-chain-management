@@ -45,8 +45,8 @@ function PatientSignup() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 text-black">
-      <div className="w-full max-w-md p-6 bg-white shadow-xl rounded-2xl space-y-4">
+    <div className="flex items-center justify-center min-h-screen border  text-black">
+      <div className="w-full max-w-md p-6  shadow-2xl rounded-2xl border space-y-4">
         <h2 className="text-2xl font-semibold text-center mb-4">Patient Sign Up</h2>
 
         {/* Hospital Dropdown */}

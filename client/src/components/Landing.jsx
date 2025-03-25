@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 text-black">
+    <div className="flex flex-col min-h-screen  text-black">
       {/* Header */}
       <header className="bg-blue-600 text-white p-6 text-center shadow-lg">
         <h1 className="text-4xl font-bold">Pharmaceutical Blockchain Solution</h1>
