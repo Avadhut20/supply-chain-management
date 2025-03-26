@@ -83,10 +83,16 @@ model HospitalInfo {
 }
 
 model Blockchain {
-  Transaction_ID Int      @id @default(autoincrement())
-  HospitalEmailID String  @unique
-  BlockData      String
-  CurrentTime    DateTime @default(now())
+  Transaction_ID   Int      @id @default(autoincrement())
+  EmailID          String   @unique
+  BirthDate        DateTime
+  CurrentTime      DateTime @default(now())
+  DiseaseFirst     String
+  DiseaseSecond    String
+  DiseaseThird     String
+  DiseaseFour      String
+  DiseaseFive      String
+  DiseaseSix       String
 }
 
 model Insurance {
