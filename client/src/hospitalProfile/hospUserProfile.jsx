@@ -10,6 +10,7 @@ function HospUserProfile() {
     { id: 102, name: 'Jane Smith', email: 'jane@example.com' },
     { id: 103, name: 'Michael Brown', email: 'michael@example.com' },
     { id: 104, name: 'Emily Johnson', email: 'emily@example.com' },
+    
   ]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
