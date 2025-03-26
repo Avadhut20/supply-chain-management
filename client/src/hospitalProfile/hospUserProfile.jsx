@@ -4,8 +4,7 @@ import axios from 'axios';
 import Close from '../icons/Close';
 
 function HospUserProfile() {
-  const [patients, setPatients] = useState([ ]);
-  
+  const [patients, setPatients] = useState([  ]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -13,12 +12,12 @@ function HospUserProfile() {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/hospital/patients',{
-          headers:{
-            authorization:localStorage.getItem("HOSPITAL")
+        const response = await axios.get('http://localhost:8080/hospital/patients', {
+          headers: {
+            authorization: localStorage.getItem("HOSPITAL")
           }
         });
-        const data_arr = response.data.patients; 
+        const data_arr = response.data.patients;
 
         const obj = data_arr.map((i) => {
           return {
@@ -27,7 +26,7 @@ function HospUserProfile() {
             email: i.Email_ID
           };
         });
-      console.log(obj);
+        console.log(obj);
         setPatients(obj);
       } catch (error) {
         console.error('Error fetching patients:', error);
@@ -36,8 +35,6 @@ function HospUserProfile() {
     fetchPatients();
   }, []);
 
-  
-  
   // Handle patient selection
   const handleSelect = (patient) => {
     setSelectedPatient(patient);
@@ -58,46 +55,45 @@ function HospUserProfile() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r">
-      <div className="w-full max-w-2xl p-6 shadow-xl rounded-xl border mt-[-100px]">
-        <h2 className="text-2xl font-semibold mb-4 text-black text-center">Info Insurance</h2>
+    <div className='flex justify-center items-center h-screen'>
+      <div className='w-[1000px] h-[600px] flex flex-col justify-start gap-5'>
+        <h2 className='text-2xl font-semibold text-black text-center mb-4'>Info Insurance</h2>
 
-        {/* Patients Table */}
-        <div className="border rounded-lg overflow-y-auto max-h-80">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-purple-600 text-white">
-              <tr>
-                <th className="p-3">Select</th>
-                <th className="p-3">ID</th>
-                <th className="p-3">Patient Name</th>
-                <th className="p-3">Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              {patients.map((patient) => (
-                <tr key={patient.id} className="border-t">
-                  <td className="p-3 text-center">
-                    <input
-                      type="radio"
-                      name="selectedPatient"
-                      checked={selectedPatient?.id === patient.id}
-                      onChange={() => handleSelect(patient)}
-                    />
-                  </td>
-                  <td className="p-3">{patient.id}</td>
-                  <td className="p-3">{patient.name}</td>
-                  <td className="p-3">{patient.email}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className='border h-[510px] rounded-lg overflow-hidden'>
+          {/* Fixed Header */}
+          <div className='grid grid-cols-4 font-semibold text-black bg-blue-100 p-3 sticky top-0 z-10'>
+            <div>Select</div>
+            <div>ID</div>
+            <div>Patient Name</div>
+            <div>Email</div>
+          </div>
+
+          {/* Scrollable Content */}
+          <div className='overflow-y-auto max-h-[460px]'>
+            {patients.map((patient) => (
+              <div key={patient.id} className='grid grid-cols-4 border-t p-3 hover:bg-blue-400 items-center'>
+                <div>
+                  <input
+                    type='radio'
+                    name='selectedPatient'
+                    checked={selectedPatient?.id === patient.id}
+                    onChange={() => handleSelect(patient)}
+                    className='mr-2 size-4'
+                  />
+                </div>
+                <div>{patient.id}</div>
+                <div>{patient.name}</div>
+                <div>{patient.email}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Next Button */}
-        <div className="flex justify-center mt-6">
+        <div className='flex justify-center mt-6'>
           <button
             onClick={handleNext}
-            className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+            className='px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition'
           >
             NEXT
           </button>
@@ -105,25 +101,23 @@ function HospUserProfile() {
 
         {/* Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black  bg-opacity-0 flex justify-center items-center z-50">
-            <div className="backdrop-blur-md   left-36 p-6 rounded-lg shadow-lg w-74 relative">
+          <div className='fixed inset-0 bg-black bg-opacity-0 flex justify-center items-center z-50'>
+            <div className='backdrop-blur-md left-36 p-6 rounded-lg shadow-lg w-74 relative'>
               <button
-                className="absolute top-2 right-2 text-gray-600 hover:text-black"
+                className='absolute top-2 right-2 text-gray-600 hover:text-black'
                 onClick={handleCloseModal}
               >
-                <Close/>
+                <Close />
               </button>
-              <CreateBlockChain patient={selectedPatient} handleCloseModal ={handleCloseModal} />
+              <CreateBlockChain patient={selectedPatient} handleCloseModal={handleCloseModal} />
             </div>
           </div>
         )}
-
-{/* {isModalOpen && (    <CreateBlockChain patient={selectedPatient} /> )} */}
-
       </div>
     </div>
   );
 }
+
 
 
 
@@ -180,21 +174,48 @@ function CreateBlockChain({ patient, handleCloseModal }) {
     setFormData({ ...formData, diseases: updatedDiseases });
   };
 
-  const handleTransaction = () => {
-    console.log('Form Data:', formData);
-    // Add transaction logic here
+  const handleTransaction = async () => {
+   
+    try{
+    console.log('Form Data:', formData.diseases[0]);
+    
+    const response = await axios.post("http://localhost:8080/hospital/createblockchain",
+     
+      {
+        EmailID:formData.email,
+        BirthDate:formData.birthDate,
+        DiseaseFirst: formData.diseases[0] || "",
+DiseaseSecond: formData.diseases[1] || "",
+DiseaseThird: formData.diseases[2] || "",
+DiseaseFour: formData.diseases[3] || "",
+DiseaseFive: formData.diseases[4] || "",
+DiseaseSix: formData.diseases[5] || ""
+
+      }, {
+        headers:{
+          authorization:localStorage.getItem("HOSPITAL")
+        }
+      }
+    )
+
+    alert(response.data.message);
     handleCloseModal();
+   }  
+   catch(e){
+    alert(e);
+    console.log("Sdmksdkskdmskdm")
+   }
+
+    
   };
 
  
   return (
-    <div className="h-auto flex items-center justify-center p-4">
+    <div className="h-[600px] flex  w-[1000px] items-center justify-center p-4">
       <div className="w-full max-w-5xl p-6 shadow-xl rounded-xl border relative">
        
           
-        
-
-        <h2 className="text-3xl font-semibold text-center mb-6">Create Blockchain</h2>
+        <h2 className="text-3xl  font-semibold text-center mb-6">Create Blockchain</h2>
 
         <div className="grid grid-cols-4 gap-4">
           <div className="col-span-2">

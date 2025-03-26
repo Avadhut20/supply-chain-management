@@ -2,9 +2,7 @@ import React, { useState,useEffect } from 'react'
 import axios from 'axios';
 import Close from '../icons/Close';
 function UserProfileSearch() {
-
     
-
    const [patients, setPatients] = useState([ ]);
    const [selectedPatient, setSelectedPatient] = useState({
     id: '',
@@ -25,6 +23,8 @@ function UserProfileSearch() {
            }
          });
          const data_arr = response.data.patients; 
+        
+        
 //   { id: 1, firstName: "Aniket", lastName: "Kaygude", mobile: "9939192", dob: "12/12/12" },
          const obj = data_arr.map((i) => {
            return {
@@ -126,7 +126,7 @@ function UserProfileSearch() {
                       >
                         <Close/>
                       </button>
-                      <GenreratePriscription patient={selectedPatient} handleCloseModal ={handleCloseModal} />
+                      <GenreratePriscription patient={selectedPatient}  handleCloseModal ={handleCloseModal} />
                     </div>
                   </div>
                 )}
@@ -141,8 +141,8 @@ function UserProfileSearch() {
 // }
 
 
-function GenreratePriscription({ patient, handleCloseModal }) {
-  
+ function GenreratePriscription({ patient, handleCloseModal  }) {
+   
     const [formData, setFormData] = useState({
       id: '',
       firstName: '',
@@ -155,6 +155,7 @@ function GenreratePriscription({ patient, handleCloseModal }) {
       companyName: '',
       quantity: '',
     });
+   
 
 
   
