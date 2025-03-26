@@ -103,6 +103,41 @@ router.get("/patients", verifyHospitalToken, async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 });
+router.post("/createblockchain", verifyHospitalToken, async (req, res) => {
+    try {
+        const {
+            EmailID,
+            BirthDate,
+            DiseaseFirst,
+            DiseaseSecond,
+            DiseaseThird,
+            DiseaseFour,
+            DiseaseFive,
+            DiseaseSix,
+        } = req.body;
+        const birthDate = new Date(BirthDate);
+        if (isNaN(birthDate.getTime())) {
+            return res.status(400).json({ message: "Invalid BirthDate format" });
+        }
+        const newBlockchainRecord = await prisma.blockchain.create({
+            data: {
+                EmailID,
+                BirthDate: birthDate,
+                DiseaseFirst,
+                DiseaseSecond,
+                DiseaseThird,
+                DiseaseFour,
+                DiseaseFive,
+                DiseaseSix,
+            },
+        });
+        res.status(201).json({ message: "Blockchain record created successfully", data: newBlockchainRecord });
+    } catch (error) {
+        console.error("Error creating blockchain record:", error);
+        res.status(500).json({ message: "Failed to create blockchain record", error: error.message });
+    }
+});
+
 
 router.get("/hospitalsnames", async (req, res) => {
     try {
