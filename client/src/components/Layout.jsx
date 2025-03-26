@@ -4,14 +4,13 @@ import {Routes, Route, BrowserRouter,Link,Outlet,useNavigate} from "react-router
 
 function Layout() {
   return (
-    <div className='flex bg-gradient-to-r from-indigo-500 via-slate-300 to-blue-500 '>
+    <div className='flex fixed  overflow-y-auto w-screen bg-gradient-to-r from-indigo-500 via-slate-300 to-blue-500 '>
         <Dashboard />
 
-        <div className='w-full ml-64 bg-red-30'>    
+        <div className='w-full overflow-y-auto  ml-64 '>    
               <Outlet />
             </div>
-
-
+            
     </div>
   )
 }
