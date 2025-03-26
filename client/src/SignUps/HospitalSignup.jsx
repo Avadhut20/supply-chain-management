@@ -32,7 +32,7 @@ function HospitalSignup() {
     console.log("kdmksmkdskmdksdsmkdmksksd");
      console.log(response.data.hospital);
      alert(response.data.message +"- -> "+response.data.hospital.Hosptial_Name ) ;
-      // navigate('/signIn');
+      navigate('/signIn');
     } catch (error) {
      alert('Error during signup:', error);
     }

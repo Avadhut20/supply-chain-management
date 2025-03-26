@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
-
+import axios from 'axios';
 
 function SignIn() {
   
@@ -20,10 +19,32 @@ function SignIn() {
   };
 
   // Handle sign-in without HTML form
-  const handleSignIn = () => {
-    console.log('Sign-In Data:', formData);
-    // Add API call for sign-in here
-    navigate("/ShowBlockChain");
+  const handleSignIn = async () => {
+  try{console.log(formData)
+    
+     const response = await axios.post("http://localhost:8080/auth/signin",
+      {
+       email:formData.email,
+       password:formData.password,
+       role:formData.role
+     }); 
+     console.log(formData)
+     if(formData.role == "PATIENT") {
+      localStorage.setItem(formData.role,response.data.token);
+      alert(response.data.message);
+      navigate("/PatientUserProfile")
+     }
+     if(formData.role == "HOSPITAL") {
+      localStorage.setItem(formData.role,response.data.token);
+      alert(response.data.message);
+      navigate("/HospUserProfile")
+     }
+  
+  }
+  
+  catch(e){
+    alert(e)
+  }
   };
 
   return (

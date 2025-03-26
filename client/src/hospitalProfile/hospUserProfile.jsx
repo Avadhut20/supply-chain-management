@@ -4,14 +4,8 @@ import axios from 'axios';
 import Close from '../icons/Close';
 
 function HospUserProfile() {
-  const [patients, setPatients] = useState([
-
-    { id: 101, name: 'John Doe', email: 'john@example.com' },
-    { id: 102, name: 'Jane Smith', email: 'jane@example.com' },
-    { id: 103, name: 'Michael Brown', email: 'michael@example.com' },
-    { id: 104, name: 'Emily Johnson', email: 'emily@example.com' },
-    
-  ]);
+  const [patients, setPatients] = useState([ ]);
+  
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -19,8 +13,22 @@ function HospUserProfile() {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/hospital/patients');
-        setPatients(response.data);
+        const response = await axios.get('http://localhost:8080/hospital/patients',{
+          headers:{
+            authorization:localStorage.getItem("HOSPITAL")
+          }
+        });
+        const data_arr = response.data.patients; 
+
+        const obj = data_arr.map((i) => {
+          return {
+            id: i.P_ID,
+            name: i.First_Name + " " + i.Last_Name,
+            email: i.Email_ID
+          };
+        });
+      console.log(obj);
+        setPatients(obj);
       } catch (error) {
         console.error('Error fetching patients:', error);
       }
@@ -28,6 +36,8 @@ function HospUserProfile() {
     fetchPatients();
   }, []);
 
+  
+  
   // Handle patient selection
   const handleSelect = (patient) => {
     setSelectedPatient(patient);
@@ -176,10 +186,7 @@ function CreateBlockChain({ patient, handleCloseModal }) {
     handleCloseModal();
   };
 
-  const handleClose = () => {
-    if (typeof onClose === 'function') onClose();
-  };
-
+ 
   return (
     <div className="h-auto flex items-center justify-center p-4">
       <div className="w-full max-w-5xl p-6 shadow-xl rounded-xl border relative">
