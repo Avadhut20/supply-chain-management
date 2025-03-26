@@ -3,6 +3,7 @@ const { PrismaClient } = require("@prisma/client");
 const user = require("./controllers/userController");
 const Patient = require("./controllers/patientController");
 const Hospital = require("./controllers/hospitalController");
+const Signin = require("./controllers/signincontroller");
 const cors  = require("cors");
  
 const app = express();
@@ -13,6 +14,7 @@ app.use(cors());
 // app.use("/auth", user);
 app.use("/patient", Patient);
 app.use("/hospital", Hospital);
+app.use("/auth", Signin);
 
 
 app.get("/protected", async (req, res) => {
