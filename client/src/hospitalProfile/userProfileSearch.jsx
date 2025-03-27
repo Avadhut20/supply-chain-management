@@ -143,7 +143,7 @@ function UserProfileSearch() {
 
 
  function GenreratePriscription({all_patientData, patient, handleCloseModal  }) {
-    const [types,setTypes]= useState();
+    const [types,setTypes]= useState([]);
      
     const [formData, setFormData] = useState({
       id: '',
