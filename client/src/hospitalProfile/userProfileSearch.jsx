@@ -127,7 +127,7 @@ function UserProfileSearch() {
                       >
                         <Close/>
                       </button>
-                      <GenreratePriscription all_patientData={all_patientData} patient={selectedPatient}  handleCloseModal ={handleCloseModal} />
+                      <GeneratePrescription all_patientData={all_patientData} patient={selectedPatient}  handleCloseModal ={handleCloseModal} />
                     </div>
                   </div>
                 )}
@@ -137,130 +137,244 @@ function UserProfileSearch() {
   )
 }
 
-// function GenreratePriscription({patient, handleCloseModal}){
-//     return <div>msmkds</div>
-// }
+function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
+  const [types, setTypes] = useState([]);
+  const diseaseOptions = ["Diabetes", "Hypertension", "Asthma", "Cardiovascular Disease", "Arthritis", "Cancer"];
 
+  const [formData, setFormData] = useState({
+    id: "",
+    firstName: "",
+    lastName: "",
+    mobileNumber: "",
+    birthDate: "",
+    diseases: Array(6).fill(""),
+    medicines: [{ medicineName: "", disease: "", companyName: "", quantity: "" }],
+  });
 
- function GenreratePriscription({all_patientData, patient, handleCloseModal  }) {
-    const [types,setTypes]= useState([]);
-     
-    const [formData, setFormData] = useState({
-      id: '',
-      firstName: '',
-      lastName: '',
-      mobileNumber: '',
-      birthDate: '',
-      diseases: Array(6).fill(''),
-      medicineName: '',
-      subName: '',
-      companyName: '',
-      quantity: '',
-    });
-    
-    useEffect(() => {
-      const fetchData = async () => {
-        const ReqPatient = all_patientData.find((i) => i.P_ID == patient.id);
-        console.log("required",ReqPatient);
-    
-        try {
-          if (ReqPatient) {
-            const response = await axios.post(
-              "http://localhost:8080/hospital/fetchblockchain",
-              {
-                EmailID: ReqPatient.Email_ID,
-                BirthDate: ReqPatient.Date_of_Birth,
+  useEffect(() => {
+    const fetchData = async () => {
+      const ReqPatient = all_patientData.find((i) => i.P_ID == patient.id);
+
+      try {
+        if (ReqPatient) {
+          const response = await axios.post(
+            "http://localhost:8080/hospital/fetchblockchain",
+            {
+              EmailID: ReqPatient.Email_ID,
+              BirthDate: ReqPatient.Date_of_Birth,
+            },
+            {
+              headers: {
+                authorization: localStorage.getItem("HOSPITAL"),
               },
-              {
-                headers: {
-                  authorization: localStorage.getItem("HOSPITAL"),
-                },
-              }
-            );
-            // console.log("data==> ",response.data)
-            setTypes(response.data.diseases);
-            // console.log("disease arr ", response.data.diseases)
-          }
-        } catch (e) {
-          console.log(e);
+            }
+          );
+          setTypes(response.data.diseases);
         }
-      };
-    
-      fetchData();
-    }, []); 
-    
-
-
-    
-
-
-  
-    useEffect(() => {
-      if (patient) {    
-       console.log("diseasfsdsfsdf", types);
-        setFormData((prevData) => ({
-          ...prevData,
-          id: patient.id || '',
-          firstName: patient.firstName || '',
-          lastName:  patient.lastName || '',
-          mobileNumber: patient.mobileNumber || '',
-          birthDate: patient.birthDate || '',
-          diseases: types ? types.slice(0, 6) : Array(6).fill(''),
-        }));
+      } catch (e) {
+        console.error("Error fetching blockchain data:", e);
       }
-    }, [patient,types]);
-  
-    const handleChange = (e) => {
-      const { name, value } = e.target;
-      setFormData({ ...formData, [name]: value });
     };
-  
-    const handleDiseaseChange = (index, value) => {
-      const updatedDiseases = [...formData.diseases];
+
+    fetchData();
+  }, [all_patientData, patient.id]);
+
+  useEffect(() => {
+    if (patient) {
+      setFormData((prevData) => ({
+        ...prevData,
+        id: patient.id || "",
+        firstName: patient.firstName || "",
+        lastName: patient.lastName || "",
+        mobileNumber: patient.mobileNumber || "",
+        birthDate: patient.birthDate || "",
+        diseases: types ? types.slice(0, 6) : Array(6).fill(""),
+      }));
+    }
+  }, [patient, types]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleDiseaseChange = (index, value) => {
+    setFormData((prevData) => {
+      const updatedDiseases = [...prevData.diseases];
       updatedDiseases[index] = value;
-      setFormData({ ...formData, diseases: updatedDiseases });
-    };
-  
-    const handleTransaction = () => {
-      console.log('Form Data:', formData);
+      return { ...prevData, diseases: updatedDiseases };
+    });
+  };
+
+  const handleMedicineChange = (index, field, value) => {
+    setFormData((prevData) => {
+      const updatedMedicines = [...prevData.medicines];
+      updatedMedicines[index][field] = value;
+      return { ...prevData, medicines: updatedMedicines };
+    });
+  };
+
+  const addMedicine = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+      medicines: [...prevData.medicines, { medicineName: "", disease: "", companyName: "", quantity: "" }],
+    }));
+  };
+
+  const removeMedicine = (index) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      medicines: prevData.medicines.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleTransaction = async () => {
+    try {
+      console.log("Submitting Prescription Data:", formData);
+      // Assuming an endpoint exists for submitting prescriptions
+      // await axios.post("http://localhost:8080/hospital/submitprescription", formData, {
+      //   headers: {
+      //     authorization: localStorage.getItem("HOSPITAL"),
+      //   },
+      // });
+      alert("Prescription generated successfully.");
       handleCloseModal();
-    };
-  
-    return (
-      <div className="h-auto flex items-center justify-center p-4">
-        <div className="w-full max-w-5xl p-6 shadow-xl rounded-xl border relative">
-          <h2 className="text-3xl font-semibold text-center mb-6">PATIENT PRESCRIPTION</h2>
-  
-          <div className="grid grid-cols-3 gap-4">
-            <input type="text" name="id" value={formData.id} onChange={handleChange} placeholder="ID" className="w-full p-2 border rounded-lg" />
-            <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="First Name" className="w-full p-2 border rounded-lg" />
-            <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Last Name" className="w-full p-2 border rounded-lg" />
-            <input type="text" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} placeholder="Mobile Number" className="w-full p-2 border rounded-lg" />
-            <input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} className="w-full p-2 border rounded-lg" />
-          </div>
-  
-          <h3 className="text-xl font-semibold mt-6 mb-4">Diseases</h3>
-          <div className="grid grid-cols-3 gap-4">
-            {formData.diseases.map((disease, index) => (
-              <input key={index} type="text" value={disease} onChange={(e) => handleDiseaseChange(index, e.target.value)} placeholder={`Disease ${index + 1}`} className="w-full p-2 border rounded-lg" />
-            ))}
-          </div>
-  
-          <h3 className="text-xl font-semibold mt-6 mb-4">Generate Prescription</h3>
-          <div className="grid grid-cols-4 gap-4">
-            <input type="text" name="medicineName" value={formData.medicineName} onChange={handleChange} placeholder="Medicine Name" className="w-full p-2 border rounded-lg" />
-            <input type="text" name="subName" value={formData.subName} onChange={handleChange} placeholder="Sub Name" className="w-full p-2 border rounded-lg" />
-            <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} placeholder="Company Name" className="w-full p-2 border rounded-lg" />
-            <input type="text" name="quantity" value={formData.quantity} onChange={handleChange} placeholder="Quantity" className="w-full p-2 border rounded-lg" />
-          </div>
-  
-          <button onClick={handleTransaction} className="w-full p-3 mt-6 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
-            Generate Prescription
-          </button>
+    } catch (e) {
+      console.error("Error submitting prescription:", e);
+      alert("Failed to generate prescription. Please try again.");
+    }
+  };
+
+  return (
+    <div className="h-auto flex items-center justify-center p-4">
+      <div className="w-full max-w-5xl p-6 shadow-xl rounded-xl border relative">
+        <h2 className="text-3xl font-semibold text-center mb-6">PATIENT PRESCRIPTION</h2>
+
+        <div className="grid grid-cols-3 gap-4">
+          <input
+            type="text"
+            name="id"
+            value={formData.id}
+            onChange={handleChange}
+            placeholder="ID"
+            className="w-full p-2 border rounded-lg"
+          />
+          <input
+            type="text"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            placeholder="First Name"
+            className="w-full p-2 border rounded-lg"
+          />
+          <input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            placeholder="Last Name"
+            className="w-full p-2 border rounded-lg"
+          />
+          <input
+            type="text"
+            name="mobileNumber"
+            value={formData.mobileNumber}
+            onChange={handleChange}
+            placeholder="Mobile Number"
+            className="w-full p-2 border rounded-lg"
+          />
+          <input
+            type="date"
+            name="birthDate"
+            value={formData.birthDate}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-lg"
+          />
+        </div>
+
+        <h3 className="text-xl font-semibold mt-6 mb-4">Diseases</h3>
+        <div className="grid grid-cols-3 gap-4">
+          {formData.diseases.map((disease, index) => (
+            <input
+              key={index}
+              type="text"
+              value={disease}
+              onChange={(e) => handleDiseaseChange(index, e.target.value)}
+              placeholder={`Disease ${index + 1}`}
+              className="w-full p-2 border rounded-lg"
+            />
+          ))}
+        </div>
+
+        <h3 className="text-xl font-semibold mt-6 mb-4">Generate Prescription</h3>
+        <div className="max-h-64 overflow-y-auto border rounded-lg p-4">
+          {formData.medicines.map((medicine, index) => (
+            <div key={index} className="grid grid-cols-5 gap-4 mb-4 items-center">
+              <input
+                type="text"
+                value={medicine.medicineName}
+                onChange={(e) => handleMedicineChange(index, "medicineName", e.target.value)}
+                placeholder="Medicine Name"
+                className="w-full p-2 border rounded-lg"
+              />
+              <select
+                value={medicine.disease}
+                onChange={(e) => handleMedicineChange(index, "disease", e.target.value)}
+                className="w-full p-2 border rounded-lg"
+              >
+                <option value="">Select Disease</option>
+                {types.map((option, idx) => (
+                  <option key={idx} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                value={medicine.companyName}
+                onChange={(e) => handleMedicineChange(index, "companyName", e.target.value)}
+                placeholder="Company Name"
+                className="w-full p-2 border rounded-lg"
+              />
+              <input
+                type="text"
+                value={medicine.quantity}
+                onChange={(e) => handleMedicineChange(index, "quantity", e.target.value)}
+                placeholder="Quantity"
+                className="w-full p-2 border rounded-lg"
+              />
+              <button
+                onClick={() => removeMedicine(index)}
+                className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className='flex justify-between gap-5'>
+
+        <button
+          onClick={addMedicine}
+          className="w-full p-3 mt-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          Add Medicine
+        </button>
+
+        <button
+          onClick={handleTransaction}
+          className="w-full p-3 mt-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+        >
+          Generate Prescription
+        </button>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+
+
   
 
 export default UserProfileSearch;
