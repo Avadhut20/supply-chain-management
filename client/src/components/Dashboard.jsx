@@ -4,8 +4,7 @@ import SideBar from "./sideBar";
 
 function Dashboard() {
   const location = useLocation();
-  console.log(location);
-  console.log(location.pathname);
+
 
   // Dynamic menu items based on the current route
   const getMenuItems = () => {
@@ -54,6 +53,39 @@ function Dashboard() {
           ],
          name:"Patient Profile"
       }
+
+      
+      case "/HospUserProfile":
+        return {
+          arr:[
+          
+            { label: "User Profile", path: "/HospUserProfile" },
+            { label: "User Profile Search", path: "/UserProfileSearch" },
+            { label: "Show Block Chain", path: "/ShowBlockChain" },
+          ],
+         name:"Hospital Profile"
+      }
+      case "/UserProfileSearch":
+        return {
+          arr:[
+            
+            { label: "User Profile", path: "/HospUserProfile" },
+            { label: "User Profile Search", path: "/UserProfileSearch" },
+            { label: "Show Block Chain", path: "/ShowBlockChain" },
+          ],
+         name:"Hospital Profile"
+      }
+      case "/ShowBlockChain":
+        return {
+          arr:[
+           
+            { label: "User Profile", path: "/HospUserProfile" },
+            { label: "User Profile Search", path: "/UserProfileSearch" },
+            { label: "Show Block Chain", path: "/ShowBlockChain" },
+          ],
+         name:"Hospital Profile"
+      }
+
 
       default:
         return{ 

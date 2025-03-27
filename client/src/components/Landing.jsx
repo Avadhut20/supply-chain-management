@@ -6,7 +6,7 @@ function LandingPage() {
     <div className="flex flex-col min-h-screen  text-black">
       {/* Header */}
       <header className="bg-blue-600 text-white p-6 text-center shadow-lg">
-        <h1 className="text-4xl font-bold">Pharmaceutical Blockchain Solution</h1>
+        <h1 className="text-4xl font-bold">Phrmaceutical Blockchain Solution</h1>
         <p className="mt-2">Ensuring Drug Authenticity and Supply Chain Integrity</p>
       </header>
 

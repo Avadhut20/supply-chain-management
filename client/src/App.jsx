@@ -1,9 +1,9 @@
 
 import './App.css'
 
-import { useState } from 'react'
+
 import {Routes, Route, BrowserRouter,Link,Outlet,useNavigate} from "react-router-dom"
-import Dashboard from './components/Dashboard'
+
 import PatientSignup from "./SignUps/patientSignup"
 import HospitalSignup from './SignUps/HospitalSignup';
 import InsuranceSignup from './SignUps/InsuranceSignup';
@@ -16,6 +16,11 @@ import PatientUserProfile from './patientProfile/patientUserProfile'
 import PatientInsurence from './patientProfile/patientInsurence'
 import PatientInsuHistory from './patientProfile/PatientInsuHistory'
 import PatientMedTrack from './patientProfile/PatientMedTrack'
+
+
+import HospUserProfile from './hospitalProfile/hospUserProfile'
+import UserProfileSearch from './hospitalProfile/userProfileSearch'
+import ShowBlockChain from './hospitalProfile/ShowBlockChain'
 
 function App() {
  
@@ -40,6 +45,14 @@ function App() {
           <Route path='/PatientInsurence' element={<PatientInsurence/>} />
           <Route path='/PatientInsuHistory' element={<PatientInsuHistory/>} />
           <Route path='/PatientMedTrack' element={<PatientMedTrack/>} />
+
+          {/* Hospital Routes */}
+
+          <Route path='/HospUserProfile' element={<HospUserProfile/>} />
+         
+          <Route path='/UserProfileSearch' element={<UserProfileSearch/>} />
+          <Route path='/ShowBlockChain' element={<ShowBlockChain/>} />
+
           
         </Route>
       </Routes>

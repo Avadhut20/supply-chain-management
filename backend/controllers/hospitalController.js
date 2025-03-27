@@ -103,6 +103,7 @@ router.get("/patients", verifyHospitalToken, async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 });
+
 router.post("/createblockchain", verifyHospitalToken, async (req, res) => {
     try {
         const {
@@ -115,10 +116,13 @@ router.post("/createblockchain", verifyHospitalToken, async (req, res) => {
             DiseaseFive,
             DiseaseSix,
         } = req.body;
+        console.log("sdsdsds");
         const birthDate = new Date(BirthDate);
         if (isNaN(birthDate.getTime())) {
             return res.status(400).json({ message: "Invalid BirthDate format" });
         }
+
+        
         const newBlockchainRecord = await prisma.blockchain.create({
             data: {
                 EmailID,
@@ -134,9 +138,70 @@ router.post("/createblockchain", verifyHospitalToken, async (req, res) => {
         res.status(201).json({ message: "Blockchain record created successfully", data: newBlockchainRecord });
     } catch (error) {
         console.error("Error creating blockchain record:", error);
+        console.log("hui hui hui hui ")
         res.status(500).json({ message: "Failed to create blockchain record", error: error.message });
     }
 });
+
+
+
+
+router.post("/fetchblockchain", verifyHospitalToken, async (req, res) => {
+    try {
+        const { EmailID, BirthDate } = req.body;
+       
+        if (!EmailID || !BirthDate) {
+            return res.status(400).json({ message: "EmailID and BirthDate are required" });
+        }
+
+        // Convert to a JavaScript Date object
+        const birthDateObj = new Date(BirthDate);
+        if (isNaN(birthDateObj.getTime())) {
+            return res.status(400).json({ message: "Invalid BirthDate format" });
+        }
+
+        // Query using Date object (not a formatted string)
+        const blockchainRecord = await prisma.blockchain.findFirst({
+            where: {
+                EmailID: EmailID,
+                BirthDate: birthDateObj, // ✅ Pass as Date object
+            },
+            select: {
+                DiseaseFirst: true,
+                DiseaseSecond: true,
+                DiseaseThird: true,
+                DiseaseFour: true,
+                DiseaseFive: true,
+                DiseaseSix: true,
+            },
+        });
+       
+        if (!blockchainRecord) {
+            return res.status(404).json({ message: "No record found" });
+        }
+
+        
+        const diseases = [
+            blockchainRecord.DiseaseFirst || "",
+            blockchainRecord.DiseaseSecond || "",
+            blockchainRecord.DiseaseThird || "",
+            blockchainRecord.DiseaseFour || "",
+            blockchainRecord.DiseaseFive || "",
+            blockchainRecord.DiseaseSix || "",
+        ].filter(disease => disease.trim() !== "");
+
+        res.status(200).json({ message: "Record found", diseases });
+
+    } catch (error) {
+        console.error("Error fetching blockchain record:", error);
+        res.status(500).json({ message: "Failed to fetch blockchain record", error: error.message });
+    }
+});
+
+
+
+
+
 
 
 router.get("/hospitalsnames", async (req, res) => {
