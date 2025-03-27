@@ -4,6 +4,7 @@ import Close from '../icons/Close';
 function UserProfileSearch() {
     
    const [patients, setPatients] = useState([ ]);
+   const [all_patientData , setAllPatientData] = useState([ ]);
    const [selectedPatient, setSelectedPatient] = useState({
     id: '',
     firstName: '',
@@ -23,7 +24,7 @@ function UserProfileSearch() {
            }
          });
          const data_arr = response.data.patients; 
-        
+         setAllPatientData(response.data.patients);
         
 //   { id: 1, firstName: "Aniket", lastName: "Kaygude", mobile: "9939192", dob: "12/12/12" },
          const obj = data_arr.map((i) => {
@@ -126,7 +127,7 @@ function UserProfileSearch() {
                       >
                         <Close/>
                       </button>
-                      <GenreratePriscription patient={selectedPatient}  handleCloseModal ={handleCloseModal} />
+                      <GenreratePriscription all_patientData={all_patientData} patient={selectedPatient}  handleCloseModal ={handleCloseModal} />
                     </div>
                   </div>
                 )}
@@ -141,8 +142,9 @@ function UserProfileSearch() {
 // }
 
 
- function GenreratePriscription({ patient, handleCloseModal  }) {
-   
+ function GenreratePriscription({all_patientData, patient, handleCloseModal  }) {
+    const [types,setTypes]= useState();
+     
     const [formData, setFormData] = useState({
       id: '',
       firstName: '',
@@ -155,15 +157,47 @@ function UserProfileSearch() {
       companyName: '',
       quantity: '',
     });
-   
+    
+    useEffect(() => {
+      const fetchData = async () => {
+        const ReqPatient = all_patientData.find((i) => i.P_ID == patient.id);
+        console.log("required",ReqPatient);
+    
+        try {
+          if (ReqPatient) {
+            const response = await axios.post(
+              "http://localhost:8080/hospital/fetchblockchain",
+              {
+                EmailID: ReqPatient.Email_ID,
+                BirthDate: ReqPatient.Date_of_Birth,
+              },
+              {
+                headers: {
+                  authorization: localStorage.getItem("HOSPITAL"),
+                },
+              }
+            );
+            // console.log("data==> ",response.data)
+            setTypes(response.data.diseases);
+            // console.log("disease arr ", response.data.diseases)
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      };
+    
+      fetchData();
+    }, []); 
+    
+
+
+    
 
 
   
     useEffect(() => {
-      if (patient) {
-      
-        
-       console.log("my firsNmae")
+      if (patient) {    
+       console.log("diseasfsdsfsdf", types);
         setFormData((prevData) => ({
           ...prevData,
           id: patient.id || '',
@@ -171,10 +205,10 @@ function UserProfileSearch() {
           lastName:  patient.lastName || '',
           mobileNumber: patient.mobileNumber || '',
           birthDate: patient.birthDate || '',
-          diseases: patient.diseases ? patient.diseases.slice(0, 6) : Array(6).fill(''),
+          diseases: types ? types.slice(0, 6) : Array(6).fill(''),
         }));
       }
-    }, [patient]);
+    }, [patient,types]);
   
     const handleChange = (e) => {
       const { name, value } = e.target;

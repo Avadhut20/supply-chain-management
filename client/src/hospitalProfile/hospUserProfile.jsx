@@ -7,7 +7,7 @@ function HospUserProfile() {
   const [patients, setPatients] = useState([  ]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+ const [all_patientData , setAllPatientData] = useState([ ]);
   // Fetch patients from the database
   useEffect(() => {
     const fetchPatients = async () => {
@@ -18,7 +18,7 @@ function HospUserProfile() {
           }
         });
         const data_arr = response.data.patients;
-
+        setAllPatientData(data_arr);
         const obj = data_arr.map((i) => {
           return {
             id: i.P_ID,
@@ -109,7 +109,7 @@ function HospUserProfile() {
               >
                 <Close />
               </button>
-              <CreateBlockChain patient={selectedPatient} handleCloseModal={handleCloseModal} />
+              <CreateBlockChain all_patientData={all_patientData} patient={selectedPatient} handleCloseModal={handleCloseModal} />
             </div>
           </div>
         )}
@@ -121,9 +121,9 @@ function HospUserProfile() {
 
 
 
-function CreateBlockChain({ patient, handleCloseModal }) {
-   console.log("patient -->  " , patient)
- 
+function CreateBlockChain({all_patientData, patient, handleCloseModal }) {
+   console.log("allpatient -->  " , all_patientData)
+   const [Dob,setDob] = useState();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -144,6 +144,28 @@ function CreateBlockChain({ patient, handleCloseModal }) {
       currentTime: now.toTimeString().split(' ')[0],
     }));
   }, []);
+ 
+ 
+
+  // fetch DOB
+  useEffect(() => {
+    const fetchData = async () => {
+      const ReqPatient = all_patientData.find((i) => i.P_ID == patient.id);
+      console.log(ReqPatient);
+      try {
+        if (ReqPatient) {
+          setDob(new Date(ReqPatient.Date_of_Birth).toISOString().split("T")[0]);
+
+        }
+      } catch (e) {
+        alert(e);
+      }
+    };
+  
+    fetchData();
+  }, []);
+
+
 
   // Populate patient info if provided
   useEffect(() => {
@@ -157,11 +179,11 @@ function CreateBlockChain({ patient, handleCloseModal }) {
         email: patient.email || '',
         firstName: firstName || '',
         lastName: lastName || '',
-        birthDate: patient.birthDate || '',
+        birthDate: Dob || '',
         diseases: patient.diseases ? patient.diseases.slice(0, 6) : Array(6).fill(''),
       }));
     }
-  }, [patient]);
+  }, [patient,Dob]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -203,7 +225,7 @@ DiseaseSix: formData.diseases[5] || ""
    }  
    catch(e){
     alert(e);
-    console.log("Sdmksdkskdmskdm")
+    // console.log("Sdmksdkskdmskdm")
    }
 
     
