@@ -143,6 +143,40 @@ router.post("/createblockchain", verifyHospitalToken, async (req, res) => {
     }
 });
 
+router.post("/prescription",verifyHospitalToken,async (req, res) => {
+    const {
+        PID,
+        First_Name,
+        Last_Name,
+        Date_of_Birth,
+        Mobile_No,
+        Email_ID ,  
+        Hospital ,  
+        Medicine  ,       
+        }= req.body;
+    try{
+        const parsedMedicine = typeof Medicine === "string" ? JSON.parse(Medicine) : Medicine;
+        const dob= new Date(Date_of_Birth);
+    // Create prescription in the database
+    const prescription = await prisma.medicine.create({
+      data: {
+        PID,
+        First_Name,
+        Last_Name,
+        Date_of_Birth:dob,
+        Mobile_No,
+        Email_ID,
+        Hospital,
+        Medicine: parsedMedicine, // Store as JSON
+      },
+    });
+        res.status(201).json({message:"Prescription created successfully",data:prescription});
+    }
+    catch(error){
+        console.error("Error creating prescription:", error);
+        res.status(500).json({message:"Failed to create prescription",error:error.message});
+    }
+})
 
 
 
