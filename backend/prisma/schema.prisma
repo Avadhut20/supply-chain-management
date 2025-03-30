@@ -180,17 +180,23 @@ model NewPatients {
 
 model Medicine {
   M_ID          Int     @id @default(autoincrement())
-  OrderId     String  @unique
+  PID          Int     @unique
+  First_Name    String
+  Last_Name     String
+  Date_of_Birth DateTime
+  Mobile_No     String  @unique
   Email_ID    String
   Hospital    String
-  MedName     String
-  SubMedName  String?
-  Company     String
-  Quantity    Int
-  CreateDate  DateTime
+  Medicine    Json
+  DiseaseFirst     String    @default("NA")
+  DiseaseSecond    String    @default("NA")
+  DiseaseThird     String    @default("NA")
+  DiseaseFour      String    @default("NA")
+  DiseaseFive      String    @default("NA")
+  DiseaseSix       String    @default("NA")
+  CreateDate  DateTime @default(now())
   CreateTime  DateTime @default(now())
-  Cost        Float
-  TrackingId  String  @unique
+  TrackingId  Int  @unique @default(autoincrement())
 }
 
 model Register {

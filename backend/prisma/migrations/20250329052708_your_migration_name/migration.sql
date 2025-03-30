@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Medicine" ALTER COLUMN "CreateDate" SET DEFAULT CURRENT_TIMESTAMP;
