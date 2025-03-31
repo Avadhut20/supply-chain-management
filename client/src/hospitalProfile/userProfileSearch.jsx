@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from 'react'
 import axios from 'axios';
 import Close from '../icons/Close';
+import {QRCode} from 'react-qr-code';
 function UserProfileSearch() {
     
    const [patients, setPatients] = useState([ ]);
@@ -140,11 +141,13 @@ function UserProfileSearch() {
 function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
   const [types, setTypes] = useState([]);
   const diseaseOptions = ["Diabetes", "Hypertension", "Asthma", "Cardiovascular Disease", "Arthritis", "Cancer"];
-
+  const [qrData, setQrData] = useState(null);
   const [formData, setFormData] = useState({
-    id: "",
-    firstName: "",
-    lastName: "",
+    PID: "",
+    First_Name: "",
+    Last_Name: "",
+    Date_of_Birth:"",
+    Email_ID:"",
     mobileNumber: "",
     birthDate: "",
     diseases: Array(6).fill(""),
@@ -170,6 +173,11 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
             }
           );
           setTypes(response.data.diseases);
+          formData.Email_ID = ReqPatient.Email_ID;
+          setFormData((prevData)=>({
+            ...prevData,
+            Email_ID: ReqPatient.Email_ID,
+          }))
         }
       } catch (e) {
         console.error("Error fetching blockchain data:", e);
@@ -180,14 +188,24 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
   }, [all_patientData, patient.id]);
 
   useEffect(() => {
+    // PID,
+    //     First_Name,
+    //     Last_Name,
+    //     Date_of_Birth:dob,
+    //     Mobile_No,
+    //     Email_ID,
+    //     Hospital,
+    //     Medicine: parsedMedicine,
     if (patient) {
       setFormData((prevData) => ({
         ...prevData,
-        id: patient.id || "",
-        firstName: patient.firstName || "",
-        lastName: patient.lastName || "",
-        mobileNumber: patient.mobileNumber || "",
-        birthDate: patient.birthDate || "",
+        PID: parseInt(patient.id )|| "",
+        First_Name: patient.firstName || "",
+        Last_Name: patient.lastName || "",
+        Mobile_No: patient.mobileNumber || "",
+        Date_of_Birth: patient.birthDate || "",
+        Hospital:"na",
+        Medicine:formData.medicines || "",
         diseases: types ? types.slice(0, 6) : Array(6).fill(""),
       }));
     }
@@ -229,16 +247,19 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
   };
 
   const handleTransaction = async () => {
+    
     try {
-      console.log("Submitting Prescription Data:", formData);
-      // Assuming an endpoint exists for submitting prescriptions
-      // await axios.post("http://localhost:8080/hospital/submitprescription", formData, {
-      //   headers: {
-      //     authorization: localStorage.getItem("HOSPITAL"),
-      //   },
-      // });
-      alert("Prescription generated successfully.");
-      handleCloseModal();
+      
+      const response = await axios.post("http://localhost:8080/hospital/prescription", formData,{
+        Email_ID: patient.Email_ID,
+      }, {
+        
+        headers: { authorization: localStorage.getItem("HOSPITAL") },
+      });
+      console.log("Prescription response:", response.data);
+
+      setQrData(JSON.stringify(response.data));
+      alert("Prescription created successfully.");
     } catch (e) {
       console.error("Error submitting prescription:", e);
       alert("Failed to generate prescription. Please try again.");
@@ -254,7 +275,7 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
           <input
             type="text"
             name="id"
-            value={formData.id}
+            value={formData.PID}
             onChange={handleChange}
             placeholder="ID"
             className="w-full p-2 border rounded-lg"
@@ -262,7 +283,7 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
           <input
             type="text"
             name="firstName"
-            value={formData.firstName}
+            value={formData.First_Name}
             onChange={handleChange}
             placeholder="First Name"
             className="w-full p-2 border rounded-lg"
@@ -270,7 +291,7 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
           <input
             type="text"
             name="lastName"
-            value={formData.lastName}
+            value={formData.Last_Name}
             onChange={handleChange}
             placeholder="Last Name"
             className="w-full p-2 border rounded-lg"
@@ -278,7 +299,7 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
           <input
             type="text"
             name="mobileNumber"
-            value={formData.mobileNumber}
+            value={formData.Mobile_No}
             onChange={handleChange}
             placeholder="Mobile Number"
             className="w-full p-2 border rounded-lg"
@@ -286,7 +307,7 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
           <input
             type="date"
             name="birthDate"
-            value={formData.birthDate}
+            value={formData.Date_of_Birth}
             onChange={handleChange}
             className="w-full p-2 border rounded-lg"
           />
@@ -368,6 +389,7 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
           Generate Prescription
         </button>
         </div>
+        {qrData && <QRCode value={qrData} size={256} className="mt-4" />}
       </div>
     </div>
   );
