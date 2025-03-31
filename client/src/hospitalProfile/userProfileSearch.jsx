@@ -1,3 +1,4 @@
+
 import React, { useState,useEffect } from 'react'
 import axios from 'axios';
 import Close from '../icons/Close';
@@ -267,8 +268,8 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
   };
 
   return (
-    <div className="h-auto flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl p-6 shadow-xl rounded-xl border relative">
+    <div className="h-auto  flex items-center justify-center p-4">
+      <div className="w-full  max-w-5xl p-6 shadow-xl rounded-xl border relative">
         <h2 className="text-3xl font-semibold text-center mb-6">PATIENT PRESCRIPTION</h2>
 
         <div className="grid grid-cols-3 gap-4">
@@ -328,7 +329,7 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
         </div>
 
         <h3 className="text-xl font-semibold mt-6 mb-4">Generate Prescription</h3>
-        <div className="max-h-32 overflow-y-auto border rounded-lg p-4">
+        <div className="max-h-64 overflow-y-auto border rounded-lg p-4">
           {formData.medicines.map((medicine, index) => (
             <div key={index} className="grid grid-cols-5 gap-4 mb-4 items-center">
               <input
@@ -394,5 +395,9 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
     </div>
   );
 }
+
+
+
+  
 
 export default UserProfileSearch;

@@ -75,6 +75,8 @@ function Dashboard() {
           ],
          name:"Hospital Profile"
       }
+
+
       case "/ShowBlockChain":
         return {
           arr:[
@@ -84,6 +86,27 @@ function Dashboard() {
             { label: "Show Block Chain", path: "/ShowBlockChain" },
           ],
          name:"Hospital Profile"
+      }
+
+
+      case "/InsurenceDetails":
+        return {
+          arr:[
+           
+            { label: "Insurence Details", path: "/InsurenceDetails" },
+            { label: "User History Insurence", path: "/UserInsurenceHistory" },
+            ],
+         name:"Insurence Profile"
+      }
+
+      case "/UserInsurenceHistory":
+        return {
+          arr:[
+           
+            { label: "Insurence Details", path: "/InsurenceDetails" },
+            { label: "User History Insurence", path: "/UserInsurenceHistory" },
+            ],
+         name:"Insurence Profile"
       }
 
 

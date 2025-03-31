@@ -22,6 +22,9 @@ import HospUserProfile from './hospitalProfile/hospUserProfile'
 import UserProfileSearch from './hospitalProfile/userProfileSearch'
 import ShowBlockChain from './hospitalProfile/ShowBlockChain'
 
+import InsurenceDetails from './insurenceProfile/InsurenceDetails';
+import UserInsurenceHistory from './insurenceProfile/UserInsurenceHistory';
+
 function App() {
  
   return (
@@ -49,9 +52,13 @@ function App() {
           {/* Hospital Routes */}
 
           <Route path='/HospUserProfile' element={<HospUserProfile/>} />
-         
           <Route path='/UserProfileSearch' element={<UserProfileSearch/>} />
           <Route path='/ShowBlockChain' element={<ShowBlockChain/>} />
+
+
+              {/* Insurence Routes */}
+              <Route path={"/InsurenceDetails"} element={<InsurenceDetails/>} />
+              <Route path={"/UserInsurenceHistory"} element={<UserInsurenceHistory/>} />
 
           
         </Route>
