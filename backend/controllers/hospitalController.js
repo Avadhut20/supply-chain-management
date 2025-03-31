@@ -143,7 +143,7 @@ router.post("/createblockchain", verifyHospitalToken, async (req, res) => {
     }
 });
 
-router.post("/prescription",verifyHospitalToken,async (req, res) => {
+router.post("/prescription",async (req, res) => {
     const {
         PID,
         First_Name,
@@ -177,6 +177,18 @@ router.post("/prescription",verifyHospitalToken,async (req, res) => {
         res.status(500).json({message:"Failed to create prescription",error:error.message});
     }
 })
+router.get("/prescription/:id", verifyHospitalToken, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const prescription = await prisma.medicine.findUnique({ where: { PID: id } });
+        if (!prescription) return res.status(404).json({ message: "Prescription not found" });
+
+        res.json(prescription);
+    } catch (error) {
+        console.error("Error fetching prescription:", error);
+        res.status(500).json({ message: "Failed to fetch prescription" });
+    }
+});
 
 
 

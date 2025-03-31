@@ -180,11 +180,11 @@ model NewPatients {
 
 model Medicine {
   M_ID          Int     @id @default(autoincrement())
-  PID          Int     @unique
+  PID          Int     
   First_Name    String
   Last_Name     String
   Date_of_Birth DateTime
-  Mobile_No     String  @unique
+  Mobile_No     String  
   Email_ID    String
   Hospital    String
   Medicine    Json
