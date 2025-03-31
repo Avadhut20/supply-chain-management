@@ -6,6 +6,7 @@ import {QRCode} from 'react-qr-code';
 function UserProfileSearch() {
     
    const [patients, setPatients] = useState([ ]);
+   const [visible ,setVisible] = useState(true);
    const [all_patientData , setAllPatientData] = useState([ ]);
    const [selectedPatient, setSelectedPatient] = useState({
     id: '',
@@ -77,12 +78,14 @@ function UserProfileSearch() {
     })
 
     setIsModalOpen(true);
+    setVisible(true);
     
   }
 
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  
   };
   
 
@@ -122,14 +125,14 @@ function UserProfileSearch() {
 
         {isModalOpen && (
                   <div className="fixed inset-0 bg-black  bg-opacity-0 flex justify-center items-center z-50">
-                    <div className="backdrop-blur-md w-[1100px]  left-36 p-6 rounded-lg shadow-lg  relative">
+                    <div className="backdrop-blur-md w-[1100px] mt-8 left-36 p-6 rounded-lg shadow-lg  relative">
                       <button
                         className="absolute top-2 right-2 text-gray-600 hover:text-black"
                         onClick={handleCloseModal}
                       >
                         <Close/>
                       </button>
-                      <GeneratePrescription all_patientData={all_patientData} patient={selectedPatient}  handleCloseModal ={handleCloseModal} />
+                      <GeneratePrescription visible={visible} setVisible={setVisible}  all_patientData={all_patientData} patient={selectedPatient}  handleCloseModal ={handleCloseModal} />
                     </div>
                   </div>
                 )}
@@ -139,10 +142,13 @@ function UserProfileSearch() {
   )
 }
 
-function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
+
+
+function GeneratePrescription({visible,setVisible, all_patientData, patient, handleCloseModal }) {
   const [types, setTypes] = useState([]);
-  const diseaseOptions = ["Diabetes", "Hypertension", "Asthma", "Cardiovascular Disease", "Arthritis", "Cancer"];
   const [qrData, setQrData] = useState(null);
+  
+
   const [formData, setFormData] = useState({
     PID: "",
     First_Name: "",
@@ -189,14 +195,7 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
   }, [all_patientData, patient.id]);
 
   useEffect(() => {
-    // PID,
-    //     First_Name,
-    //     Last_Name,
-    //     Date_of_Birth:dob,
-    //     Mobile_No,
-    //     Email_ID,
-    //     Hospital,
-    //     Medicine: parsedMedicine,
+ 
     if (patient) {
       setFormData((prevData) => ({
         ...prevData,
@@ -260,6 +259,7 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
       console.log("Prescription response:", response.data);
 
       setQrData(JSON.stringify(response.data));
+      setVisible(false);
       alert("Prescription created successfully.");
     } catch (e) {
       console.error("Error submitting prescription:", e);
@@ -268,7 +268,7 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
   };
 
   return (
-    <div className="h-auto  flex items-center justify-center p-4">
+    <div className="h-auto   flex items-center justify-center p-4">
       <div className="w-full  max-w-5xl p-6 shadow-xl rounded-xl border relative">
         <h2 className="text-3xl font-semibold text-center mb-6">PATIENT PRESCRIPTION</h2>
 
@@ -316,7 +316,7 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
 
         <h3 className="text-xl font-semibold mt-6 mb-4">Diseases</h3>
         <div className="grid grid-cols-3 gap-4">
-          {formData.diseases.map((disease, index) => (
+          { visible && formData.diseases.map((disease, index) => (
             <input
               key={index}
               type="text"
@@ -330,7 +330,7 @@ function GeneratePrescription({ all_patientData, patient, handleCloseModal }) {
 
         <h3 className="text-xl font-semibold mt-6 mb-4">Generate Prescription</h3>
         <div className="max-h-64 overflow-y-auto border rounded-lg p-4">
-          {formData.medicines.map((medicine, index) => (
+          {visible && formData.medicines.map((medicine, index) => (
             <div key={index} className="grid grid-cols-5 gap-4 mb-4 items-center">
               <input
                 type="text"
