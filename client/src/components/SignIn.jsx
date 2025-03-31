@@ -20,7 +20,15 @@ function SignIn() {
 
   // Handle sign-in without HTML form
   const handleSignIn = async () => {
-  try{console.log(formData)
+  try{
+
+    if(formData.role == "INSURANCE") {
+      // localStorage.setItem(formData.role,response.data.token);
+      // alert(response.data.message);
+  
+      navigate("/InsurenceDetails")
+     }
+     else{
     
      const response = await axios.post("http://localhost:8080/auth/signin",
       {
@@ -39,6 +47,9 @@ function SignIn() {
       alert(response.data.message);
       navigate("/HospUserProfile")
      }
+
+    }
+     
   
   }
   
