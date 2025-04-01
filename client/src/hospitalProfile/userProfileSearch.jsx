@@ -4,7 +4,6 @@ import axios from 'axios';
 import Close from '../icons/Close';
 import {QRCode} from 'react-qr-code';
 function UserProfileSearch() {
-    
    const [patients, setPatients] = useState([ ]);
    const [visible ,setVisible] = useState(true);
    const [all_patientData , setAllPatientData] = useState([ ]);
