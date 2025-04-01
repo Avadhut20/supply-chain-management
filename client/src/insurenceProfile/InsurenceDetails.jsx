@@ -20,15 +20,22 @@ function InsuranceDetails() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit =async (e) => {
     e.preventDefault();
-    const response= axios.post("http://localhost:8080/insurance/insurancedetails", formData,{
+
+      try{
+    const response=await axios.post("http://localhost:8080/insurance/insurancedetails", formData,{
       headers: {
         Authorization: localStorage.getItem("INSURANCE"),
       },
     })
   
     console.log(response.data);
+    alert("insurence detail added")
+  }
+  catch (e){
+     alert (e);
+  }
   };
 
   return (
