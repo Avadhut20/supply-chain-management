@@ -18,9 +18,7 @@ router.post("/signin", async (req, res) => {
         if(patient.Password !== password){
             return res.status(401).json({message:"Invalid credentials"});
         }
-        const token = jwt.sign({id:patient. P_ID ,email:patient.Email_ID,role:"PATIENT"},process.env.JWT_SECRET || "your_jwt_secret",{
-            expiresIn:"1h",
-        });
+        const token = jwt.sign({id:patient. P_ID ,email:patient.Email_ID,role:"PATIENT"},process.env.JWT_SECRET || "your_jwt_secret");
         return res.status(200).json({message:"User signed in",token});
     }
     if (role =="HOSPITAL"){
@@ -35,9 +33,22 @@ router.post("/signin", async (req, res) => {
         if(hospital.Password !== password){
             return res.status(401).json({message:"Invalid credentials"});
         }
-        const token = jwt.sign({id:hospital.Hosptial_id,email:hospital.Email_ID,name:hospital.Hosptial_Name,role:"HOSPITAL"},process.env.JWT_SECRET || "your_jwt_secret",{
-            expiresIn:"1h",
+        const token = jwt.sign({id:hospital.Hosptial_id,email:hospital.Email_ID,name:hospital.Hosptial_Name,role:"HOSPITAL"},process.env.JWT_SECRET || "your_jwt_secret");
+        return res.status(200).json({message:"User signed in",token});
+    }
+    if(role=="INSURANCE"){
+        const insurance = await prisma.insurance.findUnique({
+            where:{
+                Email_id: email,
+            },
         });
+        if(!insurance){
+            return res.status(404).json({message:"User not found"});
+        }
+        if(insurance.Passwords !== password){
+            return res.status(401).json({message:"Invalid credentials"});
+        }
+        const token = jwt.sign({id:insurance.T_ID,email:insurance.Email_id,name:insurance.Name,role:"INSURANCE"},process.env.JWT_SECRET || "your_jwt_secret");
         return res.status(200).json({message:"User signed in",token});
     }
 })

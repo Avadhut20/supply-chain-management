@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 
 function InsuranceDetails() {
@@ -21,7 +22,13 @@ function InsuranceDetails() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+    const response= axios.post("http://localhost:8080/insurance/insurancedetails", formData,{
+      headers: {
+        Authorization: localStorage.getItem("INSURANCE"),
+      },
+    })
+  
+    console.log(response.data);
   };
 
   return (

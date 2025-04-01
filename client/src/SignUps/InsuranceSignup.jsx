@@ -21,13 +21,7 @@ function InsuranceSignup() {
   // Handle form submission
   const handleSignup = async () => {
     try {
-      // const response = await axios.post('http://localhost:8080/insurance/signup', {
-      //   Name: formData.name,
-      //   Email_ID: formData.email,
-      //   Mobile: formData.mobile,
-      //   Address: formData.address,
-      //   Password: formData.password,
-      // });
+      const response = await axios.post('http://localhost:8080/insurance/signup', formData);
 
       console.log(formData);
       // alert(response.data.message + " - -> " + response.data.insurance.Name);

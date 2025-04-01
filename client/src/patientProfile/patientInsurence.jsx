@@ -3,44 +3,40 @@ import axios from 'axios';
 import Close from '../icons/Close';
 
 function PatientInsurance() {
-  const [insuranceData, setInsuranceData] = useState([
-    {
-      id: 1,
-      company_name: "ABC Insurance",
-      policy_no: "POL12345",
-      policy_name: "Health Secure Plan",
-      policy_tenure: "5 years",
-      base_premium: "$500/year",
-      coverage_info: "Covers hospitalization and critical illness",
-      policy_amount: "$50,000"
-    },
-    {
-      id: 2,
-      company_name: "XYZ Insurance",
-      policy_no: "POL67890",
-      policy_name: "Life Cover Plus",
-      policy_tenure: "10 years",
-      base_premium: "$300/year",
-      coverage_info: "Includes accidental coverage",
-      policy_amount: "$100,000"
-    }, 
-  ]);
+  const [insuranceData, setInsuranceData] = useState([]);
   const [selectedInsurance, setSelectedInsurance] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchInsuranceData = async () => {
       try {
-        // const response = await axios.get('http://localhost:8080/insurance/list', {
-        //   headers: {
-        //     authorization: localStorage.getItem("INSURANCE_TOKEN")
-        //   }
-        // });
-        // setInsuranceData(response.data.insurance);
+        const response = await axios.get('http://localhost:8080/insurance/list', {
+          headers: {
+            authorization: localStorage.getItem("PATIENT"),
+          },
+        });
+
+        if (Array.isArray(response.data.data)) {
+          setInsuranceData(
+            response.data.data.map((item) => ({
+              id: item.T_ID,
+              company_name: item.CompanyName,
+              policy_no: item.Policy_No,
+              policy_name: item.Policy_Name,
+              policy_tenure: item.Policy_Tenure,
+              base_premium: item.Base_Premium,
+              coverage_info: item.Coverage,
+              policy_amount: item.Policy_Amount,
+            }))
+          );
+        } else {
+          console.error("Invalid data format received:", response.data);
+        }
       } catch (error) {
-        // console.error('Error fetching insurance data:', error);
+        console.error('Error fetching insurance data:', error);
       }
     };
+
     fetchInsuranceData();
   }, []);
 
@@ -63,7 +59,7 @@ function PatientInsurance() {
 
   return (
     <div className='flex justify-center items-center min-h-screen p-4'>
-      <div className='w-full   max-w-7xl flex flex-col gap-5   shadow-2xl rounded-lg p-6'>
+      <div className='w-full max-w-7xl flex flex-col gap-5 shadow-2xl rounded-lg p-6'>
         <h2 className='text-2xl font-semibold text-black text-center mb-4'>Select Insurance Policy</h2>
 
         <div className='border rounded-lg overflow-hidden'>
@@ -120,7 +116,7 @@ function PatientInsurance() {
 
         {isModalOpen && selectedInsurance && (
           <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-            <div className=' p-6 bg-white rounded-lg shadow-lg w-1/3 relative'>
+            <div className='p-6 bg-white rounded-lg shadow-lg w-1/3 relative'>
               <h3 className='text-xl font-semibold mb-4'>Insurance Details</h3>
               <p><strong>Company:</strong> {selectedInsurance.company_name}</p>
               <p><strong>Policy No:</strong> {selectedInsurance.policy_no}</p>

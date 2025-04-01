@@ -4,16 +4,16 @@ const user = require("./controllers/userController");
 const Patient = require("./controllers/patientController");
 const Hospital = require("./controllers/hospitalController");
 const Signin = require("./controllers/signincontroller");
+const Insurance = require("./controllers/insuranceController");
 const cors  = require("cors");
  
 const app = express();
-const prisma = new PrismaClient();
-
 app.use(express.json());
 app.use(cors());
-// app.use("/auth", user);
+
 app.use("/patient", Patient);
 app.use("/hospital", Hospital);
+app.use("/insurance", Insurance);
 app.use("/auth", Signin);
 
 

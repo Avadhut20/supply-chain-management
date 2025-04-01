@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function SignIn() {
-  
-  const navigate  = useNavigate();
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -20,42 +20,35 @@ function SignIn() {
 
   // Handle sign-in without HTML form
   const handleSignIn = async () => {
-  try{
+    try {
+      const response = await axios.post("http://localhost:8080/auth/signin",
+        {
+          email: formData.email,
+          password: formData.password,
+          role: formData.role
+        });
+      console.log(formData)
+      if (formData.role == "PATIENT") {
+        localStorage.setItem(formData.role, response.data.token);
+        alert(response.data.message);
+        navigate("/PatientUserProfile")
+      }
+      if (formData.role == "HOSPITAL") {
+        localStorage.setItem(formData.role, response.data.token);
+        alert(response.data.message);
+        navigate("/HospUserProfile")
+      }
+      if (formData.role == "INSURANCE") {
+        localStorage.setItem(formData.role, response.data.token);
+        alert(response.data.message);
 
-    if(formData.role == "INSURANCE") {
-      // localStorage.setItem(formData.role,response.data.token);
-      // alert(response.data.message);
-  
-      navigate("/InsurenceDetails")
-     }
-     else{
-    
-     const response = await axios.post("http://localhost:8080/auth/signin",
-      {
-       email:formData.email,
-       password:formData.password,
-       role:formData.role
-     }); 
-     console.log(formData)
-     if(formData.role == "PATIENT") {
-      localStorage.setItem(formData.role,response.data.token);
-      alert(response.data.message);
-      navigate("/PatientUserProfile")
-     }
-     if(formData.role == "HOSPITAL") {
-      localStorage.setItem(formData.role,response.data.token);
-      alert(response.data.message);
-      navigate("/HospUserProfile")
-     }
-
+        navigate("/InsurenceDetails")
+      }
     }
-     
-  
-  }
-  
-  catch(e){
-    alert(e)
-  }
+
+    catch (e) {
+      alert(e)
+    }
   };
 
   return (
