@@ -98,7 +98,7 @@ model Blockchain {
 model PatientInsuranceInfo {
   T_ID           Int     @id @default(autoincrement())
   PatientName    String
-  PatientEmail   String  @unique
+  PatientEmail   String  
   CompanyName    String
   Mobile_Number  String
   Website        String?
@@ -131,6 +131,7 @@ model PatientInsurance {
   Address     String
   Gender      String
 }
+
 model Insurance{
   T_ID         Int     @id @default(autoincrement())
   Name         String

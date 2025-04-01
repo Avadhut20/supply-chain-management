@@ -329,7 +329,7 @@ function GeneratePrescription({visible,setVisible, all_patientData, patient, han
         </div>
 
         <h3 className="text-xl font-semibold mt-6 mb-4">Generate Prescription</h3>
-        <div className="max-h-64 overflow-y-auto border rounded-lg p-4">
+        <div className="max-h-32 overflow-y-auto border rounded-lg p-4">
           {visible && formData.medicines.map((medicine, index) => (
             <div key={index} className="grid grid-cols-5 gap-4 mb-4 items-center">
               <input
