@@ -1,15 +1,13 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-
-import React from 'react'
-import { useState, useEffect } from 'react';
-
-function PatientInsuHistory() {
+function UserInsuranceHistory() {
   const [insuranceData, setInsuranceData] = useState([
 
     {
+      patientName: "John Doe",
+      patientEmail: "john@example.com",
       companyName: "ABC Insurance",
-      mobileNumber:"59599595",
-      webSite :"http:/dmksmd.com",
       address: "123 Main St, NY",
       policyNo: "POL12345",
       policyName: "Health Secure Plan",
@@ -18,10 +16,10 @@ function PatientInsuHistory() {
       coverageInfo: "Covers hospitalization and critical illness",
       policyAmount: "$50,000"
     },
-    {      
+    {
+      patientName: "Jane Smith",
+      patientEmail: "jane@example.com",
       companyName: "XYZ Insurance",
-      mobileNumber:"59599595",
-      webSite :"http:/dmksmd.com",
       address: "456 Elm St, CA",
       policyNo: "POL67890",
       policyName: "Life Cover Plus",
@@ -29,10 +27,7 @@ function PatientInsuHistory() {
       basePremium: "$300/year",
       coverageInfo: "Includes accidental coverage",
       policyAmount: "$100,000"
-    },
- ,
-    
-   
+    }
   ]);
   const [selectedInsurance, setSelectedInsurance] = useState(null);
 
@@ -53,16 +48,15 @@ function PatientInsuHistory() {
   }, []);
 
   return (
-    <div className='flex flex-col justify-center items-center p-8 min-h-screen'>
-      <div>
-      <h2 className=' text-center  text-2xl font-bold mb-6'>User Insurance History</h2>
-      <div className='w-full max-w-7xl  max-h-[600px]  overflow-y-auto  border rounded-lg shadow-lg overflow-hidden'>
+    <div className='flex flex-col items-center p-8 min-h-screen'>
+      <h2 className='text-2xl font-bold mb-6'>User Insurance History</h2>
+      <div className='w-full max-w-7xl border rounded-lg shadow-lg overflow-hidden'>
         
         {/* Header */}
-        <div className='sticky top-0   z-10 grid grid-cols-10 bg-blue-400 text-white font-semibold p-3 text-center'>
-        <div>Company</div>
-          <div>Mobile Number</div>
-          <div>Web Site</div> 
+        <div className='grid grid-cols-10 bg-purple-600 text-white font-semibold p-3 text-center'>
+          <div>Patient Name</div>
+          <div>Email</div>
+          <div>Company</div>
           <div>Address</div>
           <div>Policy No</div>
           <div>Policy Name</div>
@@ -76,13 +70,12 @@ function PatientInsuHistory() {
         {insuranceData.map((insurance, index) => (
           <div
             key={index}
-            className="grid  grid-cols-10 gap-4 p-4 border-b text-center hover:bg-purple-200 cursor-pointer"
+            className="grid grid-cols-10 gap-4 p-3 border-b text-center hover:bg-purple-200 cursor-pointer"
             onClick={() => setSelectedInsurance(insurance)}
           >
-            
+            <div className="truncate px-2">{insurance.patientName}</div>
+            <div className="truncate px-2">{insurance.patientEmail}</div>
             <div className="truncate px-2">{insurance.companyName}</div>
-            <div className="truncate px-2">{insurance.mobileNumber}</div>
-            <div className="truncate px-2">{insurance.webSite}</div>
             <div className="truncate px-2">{insurance.address}</div>
             <div className="truncate px-2">{insurance.policyNo}</div>
             <div className="truncate px-2">{insurance.policyName}</div>
@@ -96,13 +89,12 @@ function PatientInsuHistory() {
 
       {/* Modal */}
       {selectedInsurance && (
-        <div className="fixed inset-0 z-20  flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0   flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white ml-72  p-6 rounded-lg shadow-lg w-1/3">
-            <h3 className="text-xl font-semibold mb-4">Insurance HISTORY Details</h3>
-            
+            <h3 className="text-xl font-semibold mb-4">Insurance Details</h3>
+            <p><strong>Patient Name:</strong> {selectedInsurance.patientName}</p>
+            <p><strong>Email:</strong> {selectedInsurance.patientEmail}</p>
             <p><strong>Company:</strong> {selectedInsurance.companyName}</p>
-            <p><strong>Patient Name:</strong> {selectedInsurance.mobileNumber}</p>
-            <p><strong>Email:</strong> {selectedInsurance.webSite}</p>
             <p><strong>Address:</strong> {selectedInsurance.address}</p>
             <p><strong>Policy No:</strong> {selectedInsurance.policyNo}</p>
             <p><strong>Policy Name:</strong> {selectedInsurance.policyName}</p>
@@ -119,9 +111,13 @@ function PatientInsuHistory() {
           </div>
         </div>
       )}
-      </div>
     </div>
-  )
+  );
 }
 
-export default PatientInsuHistory
+export default UserInsuranceHistory;
+
+
+
+
+

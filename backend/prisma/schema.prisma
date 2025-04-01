@@ -95,7 +95,7 @@ model Blockchain {
   DiseaseSix       String
 }
 
-model Insurance {
+model PatientInsuranceInfo {
   T_ID           Int     @id @default(autoincrement())
   PatientName    String
   PatientEmail   String  @unique
@@ -131,19 +131,27 @@ model PatientInsurance {
   Address     String
   Gender      String
 }
+model Insurance{
+  T_ID         Int     @id @default(autoincrement())
+  Name         String
+  Email_id     String  @unique
+  Mobile_No   String  @unique
+  Address     String
+  Passwords   String
+}
 
 model InsuranceDetails {
-  T_ID          Int     @id @default(autoincrement())
-  Email_IDs     String  @unique
+  T_ID          Int     @id 
+  Email_id    String  @unique
   CompanyName   String
   Mobile_Number String  @unique
   Website       String?
   Address       String
   Policy_No     String  @unique
   Policy_Name   String
-  Policy_Tenue  Int
+  Policy_Tenure  Int
   Base_Premium  Float
-  Coverage_Info String
+  Coverage String
   Policy_Amount Float
 }
 
