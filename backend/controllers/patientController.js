@@ -4,8 +4,9 @@ const cors = require("cors");
 
 const router = express.Router();
 router.use(cors());
-
 const prisma = new PrismaClient();
+
+
 
 // Signup route
 router.post("/signup", async (req, res) => {
@@ -57,4 +58,5 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports=router
+

@@ -98,18 +98,20 @@ model Blockchain {
 model PatientInsuranceInfo {
   T_ID           Int     @id @default(autoincrement())
   PatientName    String
+  PatientID       Int
   PatientEmail   String  
   CompanyName    String
+  CompanyID       Int
   Mobile_Number  String
   Website        String?
   Address        String
-  Policy_No      String  @unique
+  Policy_No      String  
   Policy_Name    String
   Policy_Tenue   Int
   Base_Premium   Float
   Coverage_Info  String
   Policy_Amount  Float
-  Email_IDs      String
+  CompanyEmail_ID      String
 }
 
 model InsuranceInfo {

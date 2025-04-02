@@ -2,51 +2,24 @@
 
 import React from 'react'
 import { useState, useEffect } from 'react';
-
+import axios from "axios"
+  
 function PatientInsuHistory() {
-  const [insuranceData, setInsuranceData] = useState([
-
-    {
-      companyName: "ABC Insurance",
-      mobileNumber:"59599595",
-      webSite :"http:/dmksmd.com",
-      address: "123 Main St, NY",
-      policyNo: "POL12345",
-      policyName: "Health Secure Plan",
-      policyTenure: "5 years",
-      basePremium: "$500/year",
-      coverageInfo: "Covers hospitalization and critical illness",
-      policyAmount: "$50,000"
-    },
-    {      
-      companyName: "XYZ Insurance",
-      mobileNumber:"59599595",
-      webSite :"http:/dmksmd.com",
-      address: "456 Elm St, CA",
-      policyNo: "POL67890",
-      policyName: "Life Cover Plus",
-      policyTenure: "10 years",
-      basePremium: "$300/year",
-      coverageInfo: "Includes accidental coverage",
-      policyAmount: "$100,000"
-    },
- ,
-    
-   
-  ]);
+  const [insuranceData, setInsuranceData] = useState([]);
   const [selectedInsurance, setSelectedInsurance] = useState(null);
 
   useEffect(() => {
     const fetchInsuranceData = async () => {
       try {
-        // const response = await axios.get('http://localhost:8080/insurance/history', {
-        //   headers: {
-        //     authorization: localStorage.getItem('INSURANCE_TOKEN'),
-        //   },
-        // });
-        // setInsuranceData(response.data.history);
+        const response = await axios.get('http://localhost:8080/insurance/PatientinsurenceHistory', {
+          headers: {
+            authorization: localStorage.getItem('PATIENT'),
+          },
+        });
+        setInsuranceData(response.data.data);
+       
       } catch (error) {
-        // console.error('Error fetching insurance history:', error);
+        console.error('Error fetching insurance history:', error);
       }
     };
     fetchInsuranceData();
@@ -80,16 +53,16 @@ function PatientInsuHistory() {
             onClick={() => setSelectedInsurance(insurance)}
           >
             
-            <div className="truncate px-2">{insurance.companyName}</div>
-            <div className="truncate px-2">{insurance.mobileNumber}</div>
-            <div className="truncate px-2">{insurance.webSite}</div>
-            <div className="truncate px-2">{insurance.address}</div>
-            <div className="truncate px-2">{insurance.policyNo}</div>
-            <div className="truncate px-2">{insurance.policyName}</div>
-            <div className="truncate px-2">{insurance.policyTenure}</div>
-            <div className="truncate px-2">{insurance.basePremium}</div>
-            <div className="truncate px-2">{insurance.coverageInfo}</div>
-            <div className="truncate px-2">{insurance.policyAmount}</div>
+            <div className="truncate px-2">{insurance.CompanyName}</div>
+            <div className="truncate px-2">{insurance.Mobile_Number}</div>
+            <div className="truncate px-2">{insurance.Website}</div>
+            <div className="truncate px-2">{insurance.Address}</div>
+            <div className="truncate px-2">{insurance.Policy_No}</div>
+            <div className="truncate px-2">{insurance.Policy_Name}</div>
+            <div className="truncate px-2">{insurance.Policy_Tenue}</div>
+            <div className="truncate px-2">{insurance.Base_Premium}</div>
+            <div className="truncate px-2">{insurance.Coverage_Info}</div>
+            <div className="truncate px-2">{insurance.Policy_Amount}</div>
           </div>
         ))}
       </div>
