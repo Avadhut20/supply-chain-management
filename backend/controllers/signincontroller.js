@@ -18,7 +18,8 @@ router.post("/signin", async (req, res) => {
         if(patient.Password !== password){
             return res.status(401).json({message:"Invalid credentials"});
         }
-        const token = jwt.sign({id:patient. P_ID ,email:patient.Email_ID,role:"PATIENT"},process.env.JWT_SECRET || "your_jwt_secret");
+        const name = patient.First_Name +" "+patient.Last_Name 
+        const token = jwt.sign({id:patient. P_ID ,email:patient.Email_ID,name:name ,  role:"PATIENT"},process.env.JWT_SECRET || "your_jwt_secret");
         return res.status(200).json({message:"User signed in",token});
     }
     if (role =="HOSPITAL"){
@@ -48,6 +49,7 @@ router.post("/signin", async (req, res) => {
         if(insurance.Passwords !== password){
             return res.status(401).json({message:"Invalid credentials"});
         }
+        
         const token = jwt.sign({id:insurance.T_ID,email:insurance.Email_id,name:insurance.Name,role:"INSURANCE"},process.env.JWT_SECRET || "your_jwt_secret");
         return res.status(200).json({message:"User signed in",token});
     }
