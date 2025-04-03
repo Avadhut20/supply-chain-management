@@ -56,10 +56,16 @@ function PatientSignup() {
         Gender: formData.gender,
       });
       
-      alert("Patient signup successfully");
+      // alert("Patient signup successfully");
       navigate('/signIn');
     } catch (error) {
-      console.error('Error during signup:', error);
+       
+      if(error.status === 500){
+        alert("Fill all filelds");
+      }
+      else{
+      alert(error.response.data.message);
+    }
     }
   };
 

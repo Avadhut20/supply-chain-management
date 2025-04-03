@@ -29,12 +29,16 @@ function HospitalSignup() {
         Address:formData.address
       } );
      
-    console.log("kdmksmkdskmdksdsmkdmksksd");
-     console.log(response.data.hospital);
-     alert(response.data.message +"- -> "+response.data.hospital.Hosptial_Name ) ;
+    //  alert(response.data.message +"- -> "+response.data.hospital.Hosptial_Name ) ;
       navigate('/signIn');
     } catch (error) {
-     alert('Error during signup:', error);
+      console.log(error);
+      if(error.status === 500){
+        alert("Fill all filelds");
+      }
+      else{
+      alert(error.response.data.message);
+    }
     }
   };
 
