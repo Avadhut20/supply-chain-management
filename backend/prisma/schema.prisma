@@ -146,7 +146,7 @@ model Insurance{
 model InsuranceDetails {
   T_ID          Int     @id 
   Email_id    String  @unique
-  CompanyName   String
+  CompanyName   String  
   Mobile_Number String  @unique
   Website       String?
   Address       String

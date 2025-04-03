@@ -10,17 +10,13 @@ const prisma = new PrismaClient();
 
 router.post("/signup", async (req, res) => {
     const { Hosptial_Name,Email_ID, Mobile, Password, Address, Patients } = req.body;
+    
     try {
-        // Check if the hospital already exists
-        const existingHospital = await prisma.hospital.findFirst({
-            where: { Email_ID: req.body.Email_ID }
-        });
-
-        if (existingHospital) {
-            return res.status(400).json({ message: "Hospital already exists" });
+      
+        if (!Hosptial_Name || !Email_ID || !Mobile || !Password || !Address) {
+            return res.status(400).json({ message: "All fields are required." });
         }
-
-        // Create a new hospital
+      
         const hospital = await prisma.hospital.create({
             data: {
                 Hosptial_Name,
@@ -31,11 +27,22 @@ router.post("/signup", async (req, res) => {
                 Patients:{ create: [] }
             }
         });
+        
 
         res.status(201).json({ message: "Hospital registered successfully", hospital });
-    } catch (error) {
+    } 
+    catch (error) {
         console.error("Error in signup:", error);
-        res.status(500).json({ message: "Internal server error" });
+        if (error.code === "P2002") {
+            return res.status(400).json({
+                message: ` A hospital with this ${error.meta?.target} already exists.`,
+                field: error.meta?.target
+            });
+        }
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message
+        });
     }
 });
 

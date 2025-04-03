@@ -11,24 +11,29 @@ const prisma = new PrismaClient();
 // Signup route
 router.post("/signup", async (req, res) => {
   // Make sure the client sends "hospitalName" (exactly matching the variable)
-  const { First_Name, Last_Name, Date_of_Birth, Email_ID, phone, address, Password, Gender, hospitalName } = req.body;
+
   try {
+    const { First_Name, Last_Name, Date_of_Birth, Email_ID, phone, address, Password, Gender, hospitalName } = req.body;
     // Check if the hospital exists using the correct field name
-    const foundHospital = await prisma.hospital.findFirst({
-      where: { Hosptial_Name: hospitalName }
-    });
+    // const foundHospital = await prisma.hospital.findFirst({
+    //   where: { Hosptial_Name: hospitalName }
+    // });
     
     // Check if the patient already exists
-    const existingPatient = await prisma.patient.findFirst({
-      where: { Email_ID }
-    });
+    // const existingPatient = await prisma.patient.findFirst({
+    //   where: { Email_ID }
+    // });
 
-    if (existingPatient) {
-      return res.status(400).json({ message: "Patient already exists" });
-    }
-    if (!foundHospital) {
-      return res.status(400).json({ message: "Hospital does not exist" });
-    }
+    // if (existingPatient) {
+    //   return res.status(400).json({ message: "Patient already exists" });
+    // }
+    // if (!foundHospital) {
+    //   return res.status(400).json({ message: "Hospital does not exist" });
+    // }
+
+    if (!First_Name || !Last_Name || !Date_of_Birth || !Email_ID || !phone || !address || !Password || !Gender || !hospitalName) {
+      return res.status(400).json({ message: "All fields are required." });
+  }
     
     const dateOfBirthObj = new Date(Date_of_Birth);
 
@@ -53,8 +58,19 @@ router.post("/signup", async (req, res) => {
 
     res.status(201).json({ message: "Patient registered successfully", patient });
   } catch (error) {
+    
     console.error("Error in signup:", error);
-    res.status(500).json({ message: "Internal server error" });
+
+        if (error.code === "P2002") {
+            return res.status(400).json({
+                message: ` A Patient with this ${error.meta?.target} already exists.`,
+                field: error.meta?.target
+            });
+        }
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message
+        });
   }
 });
 

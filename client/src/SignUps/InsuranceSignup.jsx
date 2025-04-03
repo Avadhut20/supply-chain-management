@@ -27,7 +27,12 @@ function InsuranceSignup() {
       // alert(response.data.message + " - -> " + response.data.insurance.Name);
       navigate('/signIn');
     } catch (error) {
-      alert('Error during signup:', error);
+      if(error.status === 500){
+        alert("Fill all filelds");
+      }
+      else{
+      alert(error.response.data.message);
+    }
     }
   };
 
