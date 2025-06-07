@@ -8,51 +8,44 @@ const prisma = new PrismaClient();
 router.use(cors());
 router.use(express.json());
 
-router.post("/signup",async (req, res) => {
-   
-    try {
-        const { name, email, mobile,address, password } = req.body;
-        // const existingInsurance = await prisma.insurance.findFirst({
-        //     where: { Email_id: req.body.email }
-        // });
+router.post("/signup", async (req, res) => {
+  try {
+    const { name, email, mobile, address, password, walletAddress } = req.body;
 
-        // if (existingInsurance) {
-        //     return res.status(400).json({ message: "Insurance already exists" });
-        // }
-
-        // Hash the password before storing it
-       
-        if (!name || !email || !mobile || !address || !password) {
-            return res.status(400).json({ message: "All fields are required." });
-        }
-        // Create a new insurance
-        const insurance = await prisma.insurance.create({
-            data: {
-                Name:name,
-                Email_id:email,
-                Mobile_No:mobile,
-                Address:address,
-                Passwords: password,
-                
-            }
-        });
-
-        res.status(201).json({ message: "Insurance registered successfully", insurance });
-    } catch (error) {
-        console.error("Error in signup:", error);
-
-        if (error.code === "P2002") {
-            return res.status(400).json({
-                message: ` A Insurence with this ${error.meta?.target} already exists.`,
-                field: error.meta?.target
-            });
-        }
-        res.status(500).json({
-            message: "Internal server error",
-            error: error.message
-        });
+    if (!name || !email || !mobile || !address || !password || !walletAddress) {
+      return res.status(400).json({ message: "All fields are required." });
     }
-})
+
+    const insurance = await prisma.insurance.create({
+      data: {
+        Name: name,
+        Email_id: email,
+        Mobile_No: mobile,
+        Address: address,
+        Passwords: password,
+        walletAddress,
+      }
+    });
+
+    res.status(201).json({ message: "Insurance registered successfully", insurance });
+  } catch (error) {
+    console.error("Error in signup:", error);
+
+    if (error.code === "P2002") {
+      return res.status(400).json({
+        message: `An insurance with this ${error.meta?.target} already exists.`,
+        field: error.meta?.target
+      });
+    }
+
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+});
+
+
 
 function verifyInsuranceToken(req, res, next) {
     const token = req.headers.authorization;

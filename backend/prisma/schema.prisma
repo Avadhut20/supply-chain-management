@@ -29,10 +29,13 @@ model Patient {
   address       String
   Password      String
   Gender        String
+    walletAddress String    
+
   hospitalName  String
   // Define the relation: the local field is "hospitalName" and it references the "Hosptial_Name" in Hospital model
   Hospital      Hospital @relation(fields: [hospitalName], references: [Hosptial_Name])
 }
+
 model User{
   id Int @id @default(autoincrement())
   username String
@@ -51,25 +54,29 @@ model Admin {
 }
 
 model Dealer {
-  id         Int     @id @default(autoincrement())
-  FirstName  String
-  LastName   String
-  Email      String  @unique
-  DOB        DateTime
-  Gender     String
-  Mobile     String  @unique
-  Password   String  @default("ot") @db.VarChar(8)
-  Status     String
+  id             Int      @id @default(autoincrement())
+  FirstName      String
+  LastName       String
+  Email          String   @unique
+  DOB            DateTime
+  Gender         String
+  Mobile         String
+  Password       String
+  WalletAddress  String  
 }
 
+
+
+
 model Hospital {
-  Hosptial_id Int     @id @default(autoincrement())
-  Hosptial_Name String @unique
-  Email_ID   String  @unique
-  Mobile     String  @unique
-  Password   String
-  Address    String
-  Patients      Patient[] 
+  Hosptial_id    Int      @id @default(autoincrement())
+  Hosptial_Name  String   @unique
+  Email_ID       String   @unique
+  Mobile         String   @unique
+  Password       String
+  Address        String
+  Wallet_Address String?  @unique  // Add wallet address, optional but unique
+  Patients       Patient[]
 }
 
 model HospitalInfo {
@@ -141,6 +148,7 @@ model Insurance{
   Mobile_No   String  @unique
   Address     String
   Passwords   String
+  walletAddress String
 }
 
 model InsuranceDetails {

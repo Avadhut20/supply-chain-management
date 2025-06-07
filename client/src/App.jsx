@@ -2,7 +2,7 @@
 import './App.css'
 
 
-import {Routes, Route, BrowserRouter,Link,Outlet,useNavigate} from "react-router-dom"
+import {Routes, Route, BrowserRouter,Link,Outlet} from "react-router-dom"
 
 import PatientSignup from "./SignUps/patientSignup"
 import HospitalSignup from './SignUps/HospitalSignup';
@@ -24,6 +24,9 @@ import ShowBlockChain from './hospitalProfile/ShowBlockChain'
 
 import InsurenceDetails from './insurenceProfile/InsurenceDetails';
 import UserInsurenceHistory from './insurenceProfile/UserInsurenceHistory';
+
+import DeliveredMedicines from './DealerProfile/DeliveredMedicines';
+import OrdersToDeliver from './DealerProfile/OrdersToDeliver';
 
 function App() {
  
@@ -59,6 +62,11 @@ function App() {
               {/* Insurence Routes */}
               <Route path={"/InsurenceDetails"} element={<InsurenceDetails/>} />
               <Route path={"/UserInsurenceHistory"} element={<UserInsurenceHistory/>} />
+
+              {/* Dealer */}
+  
+              <Route path={"/DeliveredMedicines"} element={<DeliveredMedicines/>} />
+              <Route path={"/OrdersToDeliver"} element={<OrdersToDeliver/>} />
 
           
         </Route>

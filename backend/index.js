@@ -6,7 +6,9 @@ const Hospital = require("./controllers/hospitalController");
 const Signin = require("./controllers/signincontroller");
 const Insurance = require("./controllers/insuranceController");
 const cors  = require("cors");
- 
+ const dealerRoutes = require("./controllers/dealerController");
+
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -14,11 +16,12 @@ app.use(cors());
 app.use("/patient", Patient);
 app.use("/hospital", Hospital);
 app.use("/insurance", Insurance);
+app.use("/dealer", dealerRoutes);
 app.use("/auth", Signin);
 
 
 app.get("/protected", async (req, res) => {
-  const user = req.headers.authorization;
+  const user = req.headers.aauthorization;
 
   if (!user || !user.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Unauthorized" });
