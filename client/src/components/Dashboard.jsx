@@ -1,6 +1,8 @@
 import { useLocation } from "react-router-dom";
 import React from "react";
 import SideBar from "./sideBar";
+import DeliveredMedicines from "../DealerProfile/DeliveredMedicines";
+import OrdersToDeliver from "../DealerProfile/OrdersToDeliver";
 
 function Dashboard() {
   const location = useLocation();
@@ -107,6 +109,26 @@ function Dashboard() {
             { label: "User History Insurence", path: "/UserInsurenceHistory" },
             ],
          name:"Insurence Profile"
+      }
+
+      case "/DeliveredMedicines":
+        return {
+          arr:[
+           
+            { label: "DeliveredMedicines", path: "/DeliveredMedicines" },
+            { label: "OrdersToDeliver", path: "/OrdersToDeliver" },
+            ],
+         name:"Dealer Profile"
+      }
+
+       case "/OrdersToDeliver":
+        return {
+          arr:[
+           
+            { label: "DeliveredMedicines", path: "/DeliveredMedicines" },
+            { label: "OrdersToDeliver", path: "/OrdersToDeliver" },
+            ],
+         name:"Dealer Profile"
       }
 
 

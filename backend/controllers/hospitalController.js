@@ -4,60 +4,67 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 router.use(cors());
-
+router.use(express.json());
+const bcrypt = require("bcrypt");
 
 const prisma = new PrismaClient();
 
-router.post("/signup", async (req, res) => {
-    const { Hosptial_Name,Email_ID, Mobile, Password, Address, Patients } = req.body;
-    
-    try {
-      
-        if (!Hosptial_Name || !Email_ID || !Mobile || !Password || !Address) {
-            return res.status(400).json({ message: "All fields are required." });
-        }
-      
-        const hospital = await prisma.hospital.create({
-            data: {
-                Hosptial_Name,
-                Email_ID,
-                Mobile,
-                Password,
-                Address,
-                Patients:{ create: [] }
-            }
-        });
-        
+router.get("/check",(req,res)=>{
+    res.send("Dsdsds");
+})
 
-        res.status(201).json({ message: "Hospital registered successfully", hospital });
-    } 
-    catch (error) {
-        console.error("Error in signup:", error);
-        if (error.code === "P2002") {
-            return res.status(400).json({
-                message: ` A hospital with this ${error.meta?.target} already exists.`,
-                field: error.meta?.target
-            });
-        }
-        res.status(500).json({
-            message: "Internal server error",
-            error: error.message
-        });
+router.post('/signup', async (req, res) => {
+    console.log("SDsdsd");
+   
+  const { Hosptial_Name, Email_ID, Mobile, Password, Address, Wallet_Address } = req.body;
+
+
+  if (!Hosptial_Name || !Email_ID || !Mobile || !Password || !Address || !Wallet_Address) {
+     console.log("Sds");
+    return res.status(400).json({ message: 'All fields including wallet address are required' });
+  }
+ 
+  try {
+    // Hash password before storing
+    // const hashedPassword = await bcrypt.hash(Password, 10);
+
+    const hospital = await prisma.hospital.create({
+      data: {
+        Hosptial_Name,
+        Email_ID,
+        Mobile,
+        Password,
+        Address,
+        Wallet_Address,
+      },
+    });
+
+    res.status(201).json({ message: 'Hospital registered successfully', hospital });
+  } catch (error) {
+    console.error(error);
+    if (error.code === 'P2002') { // Prisma unique constraint violation
+      return res.status(409).json({ message: 'Hospital with provided details already exists' });
     }
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
+
 
 const verifyHospitalToken = (req, res, next) => {
     const token = req.headers.authorization;
     if (!token) {
+        console.log("into auth 2 ")
         return res.status(401).json({ message: "No token provided" });
     }
-
+  
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_jwt_secret");
         if (decoded.role !== "HOSPITAL") {
             return res.status(403).json({ message: "Access denied" });
         }
+        
         req.hospitalId = decoded.id; // Assign hospital ID to the request
+        // console.log(req.hospitalId);
         next();
     } catch (err) {
         return res.status(401).json({ message: "Invalid token" });
@@ -67,12 +74,13 @@ const verifyHospitalToken = (req, res, next) => {
 router.get("/patients", verifyHospitalToken, async (req, res) => {
     try {
         const id = req.hospitalId; // Get hospital ID from the request object
-        console.log(id);
+        
         // Fetch the hospital name using the hospital ID
         const hospital = await prisma.hospital.findUnique({
             where: { Hosptial_id: id },
             select: { Hosptial_Name: true }, // Only select the hospital name
         });
+       
 
         if (!hospital) {
             return res.status(404).json({ message: "Hospital not found" });
@@ -96,9 +104,9 @@ router.get("/patients", verifyHospitalToken, async (req, res) => {
         });
 
         // Handle the case where no patients are found
-        if (patients.length === 0) {
-            return res.status(404).json({ message: "No patients found for this hospital" });
-        }
+        // if (patients.length === 0) {
+        //     return res.status(200).json({ message: "No patients found for this hospital" });
+        // }
 
         // Return the list of patients
         return res.status(200).json({

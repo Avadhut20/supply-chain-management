@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function InsuranceSignup() {
   const [formData, setFormData] = useState({
@@ -9,103 +11,69 @@ function InsuranceSignup() {
     mobile: '',
     address: '',
     password: '',
+    walletAddress: '',
   });
 
   const navigate = useNavigate();
 
-  // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission
   const handleSignup = async () => {
+    const { name, email, mobile, address, password, walletAddress } = formData;
+
+    if (!name || !email || !mobile || !address || !password || !walletAddress) {
+      toast.error("Please fill all fields.");
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:8080/insurance/signup', formData);
+      toast.success(response.data.message || "Signup successful!");
 
-      console.log(formData);
-      // alert(response.data.message + " - -> " + response.data.insurance.Name);
-      navigate('/signIn');
+      
+      localStorage.setItem("walletAddress_INSURANCE", formData.walletAddress);
+
+      setTimeout(() => {
+        navigate('/signIn');
+      }, 1500);
     } catch (error) {
-      if(error.status === 500){
-        alert("Fill all filelds");
+      if (error?.response?.status === 500) {
+        toast.error("Please fill all fields.");
+      } else {
+        toast.error(error?.response?.data?.message || "Signup failed!");
       }
-      else{
-      alert(error.response.data.message);
-    }
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen text-black">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="w-full max-w-lg p-8 shadow-2xl rounded-2xl border">
         <h2 className="text-3xl font-semibold text-center mb-8">Insurance Sign Up</h2>
 
         <div className="space-y-6">
-          {/* Name */}
-          <div>
-            <label className="block mb-1 text-sm font-medium">Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block mb-1 text-sm font-medium">Email ID</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {/* Mobile Number */}
-          <div>
-            <label className="block mb-1 text-sm font-medium">Mobile Number</label>
-            <input
-              type="tel"
-              name="mobile"
-              value={formData.mobile}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {/* Address */}
-          <div>
-            <label className="block mb-1 text-sm font-medium">Address</label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block mb-1 text-sm font-medium">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
+          {/* Form Inputs */}
+          {["name", "email", "mobile", "address", "walletAddress", "password"].map((field) => (
+            <div key={field}>
+              <label className="block mb-1 text-sm font-medium capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
+              <input
+                type={
+                  field === "email"
+                    ? "email"
+                    : field === "password"
+                    ? "password"
+                    : "text"
+                }
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+          ))}
 
           {/* Submit Button */}
           <button

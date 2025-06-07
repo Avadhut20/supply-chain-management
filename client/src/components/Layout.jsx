@@ -1,6 +1,6 @@
 import React from 'react'
 import Dashboard from './Dashboard'
-import {Routes, Route, BrowserRouter,Link,Outlet,useNavigate} from "react-router-dom"
+import {Outlet} from "react-router-dom"
 // bg-gradient-to-r from-slate-300 to-slate-500
 function Layout() {
   return (

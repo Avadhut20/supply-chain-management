@@ -18,6 +18,7 @@ function HospUserProfile() {
           }
         });
         const data_arr = response.data.patients;
+        console.log(data_arr +"sdsdsds");
         setAllPatientData(data_arr);
         const obj = data_arr.map((i) => {
           return {
