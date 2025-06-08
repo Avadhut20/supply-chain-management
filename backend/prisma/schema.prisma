@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,45 +6,42 @@ datasource db {
   provider = "postgresql"
   url      = "postgresql://supplyChain_owner:npg_4hv8iMABRnzs@ep-jolly-bush-a54347q7-pooler.us-east-2.aws.neon.tech/supplyChain?sslmode=require"
 }
-enum Role{
+
+enum Role {
   DEALER
   HOSPITAL
   INSURANCE
   PATIENT
+  MANUFACTURER
 }
 
 model Patient {
-  P_ID          Int     @id @default(autoincrement())
+  P_ID          Int      @id @default(autoincrement())
   First_Name    String
   Last_Name     String
   Date_of_Birth DateTime
-  Email_ID      String  @unique
+  Email_ID      String   @unique
   phone         String
   address       String
   Password      String
   Gender        String
-    walletAddress String    
+  walletAddress String
 
   hospitalName  String
-  // Define the relation: the local field is "hospitalName" and it references the "Hosptial_Name" in Hospital model
   Hospital      Hospital @relation(fields: [hospitalName], references: [Hosptial_Name])
+
+  orders        PatientOrder[]
+  prescriptions Prescription[]
 }
 
-model User{
-  id Int @id @default(autoincrement())
-  username String
-  email    String   @unique
-  password String
-  role Role
+model User {
+  id         Int      @id @default(autoincrement())
+  username   String
+  email      String   @unique
+  password   String
+  role       Role
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
-}
-
-model Admin {
-  ID        Int    @id @default(autoincrement())
-  Email_ID  String @unique
-  Username  String @default("admin")
-  Password  String @default("admin")
 }
 
 model Dealer {
@@ -62,31 +53,20 @@ model Dealer {
   Gender         String
   Mobile         String
   Password       String
-  WalletAddress  String  
+  WalletAddress  String
+  orderItems     OrderItem[]
 }
-
-
-
 
 model Hospital {
-  Hosptial_id    Int      @id @default(autoincrement())
-  Hosptial_Name  String   @unique
-  Email_ID       String   @unique
-  Mobile         String   @unique
+  Hosptial_id    Int       @id @default(autoincrement())
+  Hosptial_Name  String    @unique
+  Email_ID       String    @unique
+  Mobile         String    @unique
   Password       String
   Address        String
-  Wallet_Address String?  @unique  // Add wallet address, optional but unique
+  Wallet_Address String?  @unique
   Patients       Patient[]
-}
-
-model HospitalInfo {
-  Patient_ID       Int     @id @unique
-  PatientEmail     String  @unique
-  InsuranceCompany String
-  PolicyName       String
-  Months           Int
-  CoverageMsg      String
-  HospitalEmailID  String  @unique
+  prescriptions  Prescription[]
 }
 
 model Blockchain {
@@ -103,32 +83,32 @@ model Blockchain {
 }
 
 model PatientInsuranceInfo {
-  T_ID           Int     @id @default(autoincrement())
-  PatientName    String
-  PatientID       Int
-  PatientEmail   String  
-  CompanyName    String
-  CompanyID       Int
-  Mobile_Number  String
-  Website        String?
-  Address        String
-  Policy_No      String  
-  Policy_Name    String
-  Policy_Tenue   Int
-  Base_Premium   Float
-  Coverage_Info  String
-  Policy_Amount  Float
-  CompanyEmail_ID      String
+  T_ID              Int     @id @default(autoincrement())
+  PatientName       String
+  PatientID         Int
+  PatientEmail      String  
+  CompanyName       String
+  CompanyID         Int
+  Mobile_Number     String
+  Website           String?
+  Address           String
+  Policy_No         String  
+  Policy_Name       String
+  Policy_Tenue      Int
+  Base_Premium      Float
+  Coverage_Info     String
+  Policy_Amount     Float
+  CompanyEmail_ID   String
 }
 
 model InsuranceInfo {
-  I_IDs          Int     @id @default(autoincrement())
-  PatientName    String
-  PatientEmail   String  @unique
+  I_IDs           Int     @id @default(autoincrement())
+  PatientName     String
+  PatientEmail    String  @unique
   InsuranceCompany String
-  Policy_Name    String
-  Months         Int
-  Coverage_Msg   String
+  Policy_Name     String
+  Months          Int
+  Coverage_Msg    String
 }
 
 model PatientInsurance {
@@ -141,113 +121,126 @@ model PatientInsurance {
   Gender      String
 }
 
-model Insurance{
-  T_ID         Int     @id @default(autoincrement())
-  Name         String
-  Email_id     String  @unique
-  Mobile_No   String  @unique
-  Address     String
-  Passwords   String
+model Insurance {
+  T_ID          Int     @id @default(autoincrement())
+  Name          String
+  Email_id      String  @unique
+  Mobile_No     String  @unique
+  Address       String
+  Passwords     String
   walletAddress String
 }
 
 model InsuranceDetails {
-  T_ID          Int     @id 
-  Email_id    String  @unique
-  CompanyName   String  
-  Mobile_Number String  @unique
-  Website       String?
-  Address       String
-  Policy_No     String  @unique
-  Policy_Name   String
+  T_ID           Int     @id
+  Email_id       String  @unique
+  CompanyName    String  
+  Mobile_Number  String  @unique
+  Website        String?
+  Address        String
+  Policy_No      String  @unique
+  Policy_Name    String
   Policy_Tenure  Int
-  Base_Premium  Float
-  Coverage String
-  Policy_Amount Float
-}
-
-model Master {
-  Trans_ID         Int     @id @default(autoincrement())
-  Transaction_Hash String  @unique
-  FromName         String
-  ToName           String
-  NonceData        String
-  PreViewHash      String
-  DiseaseFirst     String
-  DiseaseSecond    String
-  DiseaseThird     String
-  DiseaseFour      String
-  DiseaseFive      String
-  DiseaseSix       String
-}
-
-model NewPatients {
-  PID            Int     @id @default(autoincrement())
-  First_Name     String
-  Middle_Name    String
-  Last_Name      String
-  Birth_Of_Date  DateTime
-  DiseaseFirst   String
-  DiseaseSecond  String
-  DiseaseThird   String
-  DiseaseFour    String
-  DiseaseFive    String
-  DiseaseSix     String
-  Email_ID       String  @unique
-  Date_Show      DateTime @default(now())
+  Base_Premium   Float
+  Coverage       String
+  Policy_Amount  Float
 }
 
 model Medicine {
   M_ID          Int     @id @default(autoincrement())
-  PID          Int     
+  PID           Int
   First_Name    String
   Last_Name     String
   Date_of_Birth DateTime
-  Mobile_No     String  
-  Email_ID    String
-  Hospital    String
-  Medicine    Json
-  DiseaseFirst     String    @default("NA")
-  DiseaseSecond    String    @default("NA")
-  DiseaseThird     String    @default("NA")
-  DiseaseFour      String    @default("NA")
-  DiseaseFive      String    @default("NA")
-  DiseaseSix       String    @default("NA")
-  CreateDate  DateTime @default(now())
-  CreateTime  DateTime @default(now())
-  TrackingId  Int  @unique @default(autoincrement())
-}
-
-model Register {
-  Patient_ID    Int     @id @default(autoincrement())
-  Name          String
-  Email_IDs     String  @unique
-  Mobile_No     String  @unique
-  Passwords     String
-  Address       String
-  Gender        String
-  Hospital_Name String
-}
-
-model ShipProduct {
-  id            Int     @id @default(autoincrement())
-  TrackingId    String  @unique
+  Mobile_No     String
   Email_ID      String
-  HospitalName  String
-  TotalProduct  Int
-  Cost          Float
-  Status        String
-  DealerName    String
-  OTP           Int     
-  Payment       String
+  Hospital      String
+  Medicine      Json
+  DiseaseFirst  String    @default("NA")
+  DiseaseSecond String    @default("NA")
+  DiseaseThird  String    @default("NA")
+  DiseaseFour   String    @default("NA")
+  DiseaseFive   String    @default("NA")
+  DiseaseSix    String    @default("NA")
+  CreateDate    DateTime @default(now())
+  CreateTime    DateTime @default(now())
+  TrackingId    Int      @unique @default(autoincrement())
 }
 
-model Tracking {
-  id            Int     @id @default(autoincrement())
-  TrackingId    String  @unique
-  DealerName    String
-  TotalProduct  Int
-  CDate         DateTime
-  Time          DateTime @default(now())
-  Status        String
+model Manufacturer {
+  id            Int        @id @default(autoincrement())
+  name          String
+  email         String     @unique
+  password      String
+  walletAddress String     @unique
+  products      Product[]
+  orders        OrderItem[] @relation("ManufacturerOrders")
+}
+
+model Product {
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  description        String?
+  price              Float
+  stock              Int
+  manufacturerId     Int
+  manufacturer       Manufacturer        @relation(fields: [manufacturerId], references: [id])
+  orderItems         OrderItem[]
+  medicineOrderItems MedicineOrderItem[] // ✅ Fix for MedicineOrderItem relation
+}
+
+
+model Prescription {
+  id           Int          @id @default(autoincrement())
+  patientId    Int
+  patient      Patient      @relation(fields: [patientId], references: [P_ID])
+  hospitalId   Int
+  hospital     Hospital     @relation(fields: [hospitalId], references: [Hosptial_id])
+  prescribedAt DateTime     @default(now())
+  diseases     String[]
+  medicines    MedicineOrderItem[]
+}
+
+model MedicineOrderItem {
+  id             Int           @id @default(autoincrement())
+  prescriptionId Int
+  prescription   Prescription  @relation(fields: [prescriptionId], references: [id])
+  productId      Int
+  product        Product       @relation(fields: [productId], references: [id])
+  quantity       Int
+}
+
+model PatientOrder {
+  id         Int         @id @default(autoincrement())
+  patientId  Int
+  patient    Patient     @relation(fields: [patientId], references: [P_ID])
+  createdAt  DateTime    @default(now())
+  items      OrderItem[]
+  status     String      // e.g., "Placed", "DealerConfirmed", etc.
+}
+
+model OrderItem {
+  id               Int           @id @default(autoincrement())
+  patientOrderId   Int
+  patientOrder     PatientOrder @relation(fields: [patientOrderId], references: [id])
+  productId        Int
+  product          Product      @relation(fields: [productId], references: [id])
+  quantity         Int
+  dealerId         Int?
+  dealer           Dealer?      @relation(fields: [dealerId], references: [id])
+  manufacturerId   Int
+  manufacturer     Manufacturer @relation("ManufacturerOrders", fields: [manufacturerId], references: [id])
+  status           String
+  shipmentLogs     ShipmentLog[] // ✅ Fix for ShipmentLog relation
+}
+
+
+model ShipmentLog {
+  id          Int       @id @default(autoincrement())
+  orderItemId Int
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id])
+  fromRole    Role
+  toRole      Role
+  timestamp   DateTime  @default(now())
+  statusNote  String
 }
