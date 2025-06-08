@@ -185,7 +185,7 @@ model Product {
   stock              Int
   manufacturerId     Int
   manufacturer       Manufacturer        @relation(fields: [manufacturerId], references: [id])
-  orderItems         OrderItem[]
+  orderItems          OrderItem[]          
   medicineOrderItems MedicineOrderItem[] // ✅ Fix for MedicineOrderItem relation
 }
 
