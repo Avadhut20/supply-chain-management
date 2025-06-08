@@ -163,40 +163,40 @@ router.post("/createblockchain", verifyHospitalToken, async (req, res) => {
     }
 });
 
-router.post("/prescription",async (req, res) => {
-    const {
-        PID,
-        First_Name,
-        Last_Name,
-        Date_of_Birth,
-        Mobile_No,
-        Email_ID ,  
-        Hospital ,  
-        Medicine  ,       
-        }= req.body;
-    try{
-        const parsedMedicine = typeof Medicine === "string" ? JSON.parse(Medicine) : Medicine;
-        const dob= new Date(Date_of_Birth);
-    // Create prescription in the database
-    const prescription = await prisma.medicine.create({
-      data: {
-        PID,
-        First_Name,
-        Last_Name,
-        Date_of_Birth:dob,
-        Mobile_No,
-        Email_ID,
-        Hospital,
-        Medicine: parsedMedicine, // Store as JSON
-      },
-    });
-        res.status(201).json({message:"Prescription created successfully",data:prescription});
-    }
-    catch(error){
-        console.error("Error creating prescription:", error);
-        res.status(500).json({message:"Failed to create prescription",error:error.message});
-    }
-})
+// router.post("/prescription",async (req, res) => {
+//     const {
+//         PID,
+//         First_Name,
+//         Last_Name,
+//         Date_of_Birth,
+//         Mobile_No,
+//         Email_ID ,  
+//         Hospital ,  
+//         Medicine  ,       
+//         }= req.body;
+//     try{
+//         const parsedMedicine = typeof Medicine === "string" ? JSON.parse(Medicine) : Medicine;
+//         const dob= new Date(Date_of_Birth);
+//     // Create prescription in the database
+//     const prescription = await prisma.medicine.create({
+//       data: {
+//         PID,
+//         First_Name,
+//         Last_Name,
+//         Date_of_Birth:dob,
+//         Mobile_No,
+//         Email_ID,
+//         Hospital,
+//         Medicine: parsedMedicine, // Store as JSON
+//       },
+//     });
+//         res.status(201).json({message:"Prescription created successfully",data:prescription});
+//     }
+//     catch(error){
+//         console.error("Error creating prescription:", error);
+//         res.status(500).json({message:"Failed to create prescription",error:error.message});
+//     }
+// })
 router.get("/prescription/:id", verifyHospitalToken, async (req, res) => {
     const { id } = req.params;
     try {
@@ -283,5 +283,128 @@ router.get("/hospitalsnames", async (req, res) => {
         res.status(500).json({ error: "An error occurred while fetching hospitals." });
     }
 });
+
+
+
+
+
+router.get("/manufacturers", verifyHospitalToken, async (req, res) => {
+  try {
+    const manufacturers = await prisma.manufacturer.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    res.status(200).json(manufacturers);
+  } catch (error) {
+    console.error("Error fetching manufacturers:", error);
+    res.status(500).json({ message: "Failed to fetch manufacturers" });
+  }
+});
+
+// ✅ Route 2: Get medicines by manufacturerId (existing)
+router.get("/manufacturers/medicines/:manufacturerId", verifyHospitalToken, async (req, res) => {
+  const manufacturerId = parseInt(req.params.manufacturerId, 10);
+  if (isNaN(manufacturerId)) {
+    return res.status(400).json({ message: "Invalid manufacturer ID" });
+  }
+
+  try {
+    const medicines = await prisma.product.findMany({
+      where: { manufacturerId: manufacturerId },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    res.status(200).json({ medicines });
+  } catch (error) {
+    console.error("Error fetching medicines:", error);
+    res.status(500).json({ message: "Failed to fetch medicines for manufacturer" });
+  }
+});
+
+// ✅ Route 3: Get medicines by manufacturer name (NEW for frontend compatibility)
+router.get("/medicines", verifyHospitalToken, async (req, res) => {
+  const { manufacturer } = req.query;
+  if (!manufacturer) {
+    return res.status(400).json({ message: "Manufacturer name is required" });
+  }
+
+  try {
+    const manufacturerRecord = await prisma.manufacturer.findUnique({
+      where: { name: manufacturer },
+      select: { id: true },
+    });
+
+    if (!manufacturerRecord) {
+      return res.status(404).json({ message: "Manufacturer not found" });
+    }
+
+    const medicines = await prisma.product.findMany({
+      where: { manufacturerId: manufacturerRecord.id },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    res.status(200).json({ medicines });
+  } catch (error) {
+    console.error("Error fetching medicines by manufacturer name:", error);
+    res.status(500).json({ message: "Failed to fetch medicines" });
+  }
+});
+
+
+router.post("/prescription", verifyHospitalToken, async (req, res) => {
+  const hospitalId = req.hospitalId; // assuming token middleware sets req.hospital
+  const { patientId, medicines, diseases } = req.body;
+  console.log(medicines);
+  try {
+    const prescription = await prisma.prescription.create({
+      data: {
+        patientId: parseInt(patientId),
+        hospitalId: parseInt(hospitalId),
+        diseases, // String[] works as is
+
+        // Nested create for medicines array of MedicineOrderItem
+        medicines: {
+          create: medicines.map((med) => ({
+            disease: med.disease,
+            medicineName: med.medicineName,
+            companyName: med.companyName,
+            quantity: med.quantity,
+            productId:med.productId
+          })),
+        },
+      },
+      include: {
+        medicines: true,
+      },
+    });
+
+    res.status(201).json({
+      message: "Prescription created successfully",
+      data: prescription,
+    });
+  } catch (error) {
+    console.error("Error creating prescription:", error);
+    res.status(500).json({
+      message: "Failed to create prescription",
+      error: error.message,
+    });
+  }
+});
+
+
+
+
+
+
+
 module.exports = router; 
   

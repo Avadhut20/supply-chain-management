@@ -172,22 +172,24 @@ model Manufacturer {
   name          String
   email         String     @unique
   password      String
-  walletAddress String     @unique
+  walletAddress String     
   products      Product[]
   orders        OrderItem[] @relation("ManufacturerOrders")
 }
 
 model Product {
   id                 Int                  @id @default(autoincrement())
-  name               String
-  description        String?
+  name               String               // e.g., "Paracetamol"
+  description        String?              // e.g., "Pain relief medicine"
   price              Float
   stock              Int
+  category           String               // ✅ NEW: e.g., "Painkiller", "Antibiotic", etc.
   manufacturerId     Int
-  manufacturer       Manufacturer        @relation(fields: [manufacturerId], references: [id])
-  orderItems          OrderItem[]          
-  medicineOrderItems MedicineOrderItem[] // ✅ Fix for MedicineOrderItem relation
+  manufacturer       Manufacturer         @relation(fields: [manufacturerId], references: [id])
+  orderItems         OrderItem[]          
+  medicineOrderItems MedicineOrderItem[]  // ✅ Prescriptions using this product
 }
+
 
 
 model Prescription {

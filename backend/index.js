@@ -5,9 +5,11 @@ const Patient = require("./controllers/patientController");
 const Hospital = require("./controllers/hospitalController");
 const Signin = require("./controllers/signincontroller");
 const Insurance = require("./controllers/insuranceController");
-const cors  = require("cors");
- const dealerRoutes = require("./controllers/dealerController");
+const dealerRoutes = require("./controllers/dealerController");
 
+const manufacture_Routes =require("./controllers/manufatureController");
+
+const cors  = require("cors");
 
 const app = express();
 app.use(express.json());
@@ -18,6 +20,7 @@ app.use("/hospital", Hospital);
 app.use("/insurance", Insurance);
 app.use("/dealer", dealerRoutes);
 app.use("/auth", Signin);
+app.use("/manufacture",manufacture_Routes)
 
 
 app.get("/protected", async (req, res) => {

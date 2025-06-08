@@ -52,6 +52,9 @@ router.post("/signin", async (req, res) => {
       return res.status(200).json({ message: "User signed in", token });
     }
 
+
+
+
     if (role === "DEALER") {
       const dealer = await prisma.dealer.findUnique({ where: { Email: email } });
       if (!dealer) return res.status(404).json({ message: "User not found" });
@@ -63,6 +66,25 @@ router.post("/signin", async (req, res) => {
       const token = jwt.sign({ id: dealer.id, email, name, role }, process.env.JWT_SECRET || "secret");
       return res.status(200).json({ message: "User signed in", token, walletAddress: dealer.WalletAddress });
     }
+
+          
+    if (role === "MANUFACTURE") {
+  const manufacturer = await prisma.manufacturer.findUnique({ where: { email } });
+  if (!manufacturer) return res.status(404).json({ message: "User not found" });
+
+  if (walletOnly) return res.status(200).json({ walletAddress: manufacturer.walletAddress });
+
+  if (manufacturer.password !== password) return res.status(401).json({ message: "Invalid credentials" });
+
+  const token = jwt.sign(
+    { id: manufacturer.id, email, name: manufacturer.name, role },
+    process.env.JWT_SECRET || "secret"
+  );
+
+  return res.status(200).json({ message: "User signed in", token, walletAddress: manufacturer.walletAddress });
+}
+
+
 
     return res.status(400).json({ message: "Invalid role" });
   } catch (err) {

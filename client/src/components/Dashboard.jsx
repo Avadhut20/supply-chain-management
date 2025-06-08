@@ -18,6 +18,7 @@ function Dashboard() {
           { label: "Show insurance List", path: "/PatientInsurence" },
           { label: "Show insurance History", path: "/PatientInsuHistory" },
           { label: "Medicine Tracking", path: "/PatientMedTrack" },
+          { label: "Medicines", path: "/Medicines" },
         ],
        name:"Patient Profile"
       }
@@ -29,6 +30,7 @@ function Dashboard() {
             { label: "Show insurance List", path: "/PatientInsurence" },
             { label: "Show insurance History", path: "/PatientInsuHistory" },
             { label: "Medicine Tracking", path: "/PatientMedTrack" },
+            { label: "Medicines", path: "/Medicines" },
           ],
          name:"Patient Profile"
       }
@@ -41,6 +43,7 @@ function Dashboard() {
             { label: "Show insurance List", path: "/PatientInsurence" },
             { label: "Show insurance History", path: "/PatientInsuHistory" },
             { label: "Medicine Tracking", path: "/PatientMedTrack" },
+            { label: "Medicines", path: "/Medicines" },
           ],
          name:"Patient Profile"
       }
@@ -52,6 +55,19 @@ function Dashboard() {
             { label: "Show insurance List", path: "/PatientInsurence" },
             { label: "Show insurance History", path: "/PatientInsuHistory" },
             { label: "Medicine Tracking", path: "/PatientMedTrack" },
+            { label: "Medicines", path: "/Medicines" },
+          ],
+         name:"Patient Profile"
+      }
+
+       case "/Medicines":
+        return {
+          arr:[
+            { label: "User Profile", path: "/PatientUserProfile" },
+            { label: "Show insurance List", path: "/PatientInsurence" },
+            { label: "Show insurance History", path: "/PatientInsuHistory" },
+            { label: "Medicine Tracking", path: "/PatientMedTrack" },
+            { label: "Medicines", path: "/Medicines" },
           ],
          name:"Patient Profile"
       }
@@ -189,9 +205,8 @@ function Dashboard() {
           { label: "HOSPITAL", path: "/HospitalSignup" },
           { label: "INSURANCE", path: "/InsuranceSignup" },
           { label: "DEALER", path: "/DealerSignup" },
-          { label: "SIGN IN", path: "/SignIn" },
-          { label: "ADMIN", path: "/AdminSignup" },
           { label: "Manufacturer", path: "/Manufacturersignup" },
+           { label: "SIGN IN", path: "/SignIn" },
         ]};
     }
   };

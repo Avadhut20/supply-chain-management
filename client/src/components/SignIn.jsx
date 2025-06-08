@@ -82,12 +82,12 @@ function SignIn() {
     try {
       // Step 1: Call backend to check user and get registered wallet (we don't compare backend wallet here, only localStorage and connected wallet)
       // But we still call to validate credentials before wallet check.
-      const res = await axios.post("http://localhost:8080/auth/signin", {
-        email,
-        password,
-        role,
-        walletOnly: true, // just to check wallet on backend side (optional)
-      });
+      // const res = await axios.post("http://localhost:8080/auth/signin", {
+      //   email,
+      //   password,
+      //   role,
+      //   walletOnly: true, // just to check wallet on backend side (optional)
+      // });
 
       // Step 2: Validate wallet (compare localStorage wallet and connected wallet)
       await validateWalletAddress(role);
@@ -119,8 +119,8 @@ function SignIn() {
         case "ADMIN":
           navigate("/AdminDashboard");
           break;
-        case "MANUFACTURER":
-          navigate("/AdminDashboard");
+        case "MANUFACTURE":
+          navigate("/CreateProduct");
           break;  
         default:
           break;
@@ -165,7 +165,7 @@ function SignIn() {
           disabled={isLoading}
         >
           <option value="">Select Role</option>
-          {["PATIENT", "HOSPITAL", "INSURANCE", "DEALER", "ADMIN"].map((r) => (
+          {["PATIENT", "HOSPITAL", "INSURANCE", "DEALER", "MANUFACTURE"].map((r) => (
             <option key={r} value={r}>
               {r}
             </option>

@@ -33,6 +33,7 @@ import CreateProduct from './manufactureProfile/CreatProduct';
 import AllProducts from './manufactureProfile/allProducts';
 import OrdersDeliverd from './manufactureProfile/OrdersDeliverd';
 import Orders from './manufactureProfile/orders';
+import Medicines from './patientProfile/Medicines';
 
 function App() {
  
@@ -58,6 +59,7 @@ function App() {
           <Route path='/PatientInsurence' element={<PatientInsurence/>} />
           <Route path='/PatientInsuHistory' element={<PatientInsuHistory/>} />
           <Route path='/PatientMedTrack' element={<PatientMedTrack/>} />
+          <Route path='/Medicines' element={<Medicines/>} />
 
           {/* Hospital Routes */}
 
@@ -80,8 +82,7 @@ function App() {
               <Route path={"/AllProducts"} element={<AllProducts/>} />
                <Route path={"/OrdersDeliverd"} element={<OrdersDeliverd/>} />
               <Route path={"/Orders"} element={<Orders/>} />
-              
-
+            
           
         </Route>
       </Routes>
