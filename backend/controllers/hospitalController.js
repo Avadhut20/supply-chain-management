@@ -6,6 +6,8 @@ const router = express.Router();
 router.use(cors());
 router.use(express.json());
 const bcrypt = require("bcrypt");
+const dotenv  = require("dotenv");
+dotenv.config();
 
 const prisma = new PrismaClient();
 
@@ -56,12 +58,15 @@ const verifyHospitalToken = (req, res, next) => {
         console.log("into auth 2 ")
         return res.status(401).json({ message: "No token provided" });
     }
-  
+ 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_jwt_secret");
+        console.log("fsdsd--> "+ process.env.JWT_SECRET)
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
         if (decoded.role !== "HOSPITAL") {
+          
             return res.status(403).json({ message: "Access denied" });
         }
+        
         
         req.hospitalId = decoded.id; // Assign hospital ID to the request
         // console.log(req.hospitalId);
@@ -81,7 +86,7 @@ router.get("/patients", verifyHospitalToken, async (req, res) => {
             select: { Hosptial_Name: true }, // Only select the hospital name
         });
        
-
+          console.log("SDskdmskdmskmdksmdks");
         if (!hospital) {
             return res.status(404).json({ message: "Hospital not found" });
         }
