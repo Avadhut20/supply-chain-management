@@ -7,6 +7,7 @@ const router = express.Router();
 router.use(cors());
 router.use(express());
 const prisma = new PrismaClient();
+const jwt = require("jsonwebtoken");
 
 
 
@@ -72,113 +73,126 @@ router.post("/signup", async (req, res) => {
 });
 
 
-// GET /patient/medicines
-// const verifyPatientToken = (req, res, next) => {
-//   const token = req.headers.authorization;
-//   if (!token) return res.status(401).json({ message: "No token provided" });
-  
-//   try {
-//   console.log("Decoded token:" + process.env.JWT_SECRET);
-//     const decoded = jwt.decode(token, process.env.JWT_SECRET ||"secret" );
-//     console.log("Decoded token:", decoded.id);
-//     if (decoded.role !== "PATIENT") {
-//       return res.status(403).json({ message: "Access denied" });
-//     }
-//     req.P_ID  = 8;
-//     console.log(req.patientId)
-//     next();
-//     console.log("hi")
-//   } catch (err) {
-//     res.status(401).json({ message: "Invalid token" });
-//   }
-// };
+const verifyPatientToken = (req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) return res.status(401).json({ message: "No token provided" });
 
-// router.get("/medicines", verifyPatientToken, async (req, res) => {
-//   const P_ID = req.P_ID ;
-//  console.log("sndfksndksdknsdksnkdnkasmdksm")
-//   try {
-//     const prescriptions = await prisma.prescription.findMany({
-//       where: {
-//         P_ID : P_ID ,
-//       },
-//       include: {
-//         medicines: {
-//           include: {
-//             product: {
-//               include: {
-//                 manufacturer: true,
-//               },
-//             },
-//           },
-//         },
-//       },
-//     });
-
-//     // Flatten medicines from all prescriptions
-//     const allMedicines = prescriptions.flatMap(p =>
-//       p.medicines.map(m => ({
-//         id: m.product.id,
-//         name: m.product.name,
-//         price: m.product.price,
-//         manufacturer: {
-//           name: m.product.manufacturer.name,
-//         },
-//         quantity: m.quantity,
-//       }))
-//     );
-
-//     res.status(200).json(allMedicines);
-//   } catch (error) {
-//     console.error("Error fetching prescriptions:", error);
-//     res.status(500).json({ message: "Failed to fetch prescribed medicines" });
-//   }
-// });
-
-
-function authenticatePatient(req, res, next) {
-  const rawHeader = req.headers.authorization;
-  if (!rawHeader) return res.status(401).json({ error: "No token provided" });
-
-  const token = rawHeader.replace("Bearer ", "");
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    console.log("Decoded user:", decoded);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
+    if (decoded.role !== "PATIENT") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    req.P_ID = decoded.id;
+    console.log("Patient ID from token:", req.P_ID);
     next();
   } catch (err) {
-    console.error("JWT error:", err.name, err.message);
-    return res.status(403).json({ error: err.message });
+    return res.status(401).json({ message: "Invalid token" });
   }
-}
+};
 
+  router.get("/medicines", verifyPatientToken, async (req, res) => {
+    const P_ID = req.P_ID ;
 
-router.get("/medicines", authenticatePatient, async (req, res) => {
-  try {
-    const patientId = req.user.id; // 🛡️ ensure you decode the JWT token and set req.user in middleware
-
-    const prescriptions = await prisma.prescription.findMany({
-      where: { patientId },
-      include: {
-        hospital: true,
-        medicines: {
-          include: {
-            medicine: {
-              include: {
-                manufacturer: true,
+    try {
+      const prescriptions = await prisma.prescription.findMany({
+        where: {
+        patientId : P_ID ,
+        },
+        include: {
+          medicines: {
+            include: {
+              product: {
+                include: {
+                  manufacturer: true,
+                },
               },
             },
           },
         },
+      });
+
+      // Flatten medicines from all prescriptions
+      const allMedicines = prescriptions.flatMap(p =>
+        p.medicines.map(m => ({
+          id: m.product.id,
+          name: m.product.name,
+          price: m.product.price,
+          manufacturer: {
+            name: m.product.manufacturer.name,
+          },
+          quantity: m.quantity,
+        }))
+      );
+
+      res.status(200).json(allMedicines);
+    } catch (error) {
+      console.error("Error fetching prescriptions:", error);
+      res.status(500).json({ message: "Failed to fetch prescribed medicines" });
+    }
+  });
+
+
+
+ router.post("/buy/:productId", verifyPatientToken, async (req, res) => {
+  const productId = parseInt(req.params.productId);
+
+  try {
+    // Use the patient ID from token middleware
+    const patient = await prisma.patient.findUnique({
+      where: { P_ID: req.P_ID },
+    });
+    if (!patient) return res.status(404).json({ error: "Patient not found" });
+
+    // Rest of your code as is...
+    let order = await prisma.patientOrder.findFirst({
+      where: { patientId: patient.P_ID, status: "Placed" },
+    });
+
+    if (!order) {
+      order = await prisma.patientOrder.create({
+        data: {
+          patientId: patient.P_ID,
+          status: "Placed",
+        },
+      });
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      include: { manufacturer: true },
+    });
+
+    if (!product) return res.status(404).json({ error: "Product not found" });
+
+    const dealer = await prisma.dealer.findFirst();
+    if (!dealer) return res.status(400).json({ error: "No dealer found" });
+
+    const orderItem = await prisma.orderItem.create({
+      data: {
+        patientOrderId: order.id,
+        productId: product.id,
+        quantity: 1,
+        dealerId: dealer.id,
+        manufacturerId: product.manufacturerId,
+        status: "PENDING",
       },
     });
 
-    res.json(prescriptions);
-  } catch (error) {
-    console.error("Error fetching prescriptions:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    await prisma.shipmentLog.create({
+      data: {
+        orderItemId: orderItem.id,
+        fromRole: "PATIENT",
+        toRole: "DEALER",
+        statusNote: "Order placed by patient",
+      },
+    });
+
+    return res.json({ success: true, message: "Order placed successfully!" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Something went wrong." });
   }
 });
-
 
 
 module.exports=router

@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-function OrdersToDeliver() {
+function DealerOrders() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const { data } = await axios.get("http://localhost:8080/dealer/pending-orders");
+        // Assuming the backend returns orders assigned to this dealer
+        const { data } = await axios.get("http://localhost:8080/dealer/pending-orders",{
+          headers: { Authorization: localStorage.getItem("DEALER") }
+        });
         setOrders(data.orders);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -16,18 +19,24 @@ function OrdersToDeliver() {
     fetchOrders();
   }, []);
 
-  const markAsDelivered = async (orderId) => {
+  const handleBuy = async (orderItemId) => {
     try {
-      await axios.post(`http://localhost:8080/dealer/deliver/${orderId}`);
-      setOrders((prev) => prev.filter((order) => order.id !== orderId));
+      // Call backend to mark order item as bought/processed by dealer
+      await axios.post(`http://localhost:8080/dealer/buy/${orderItemId}`);
+      
+      // Optionally update UI by removing the bought order from list
+      setOrders((prev) => prev.filter((order) => order.id !== orderItemId));
+      
+      alert("Order item bought successfully!");
     } catch (error) {
-      console.error("Error marking order as delivered:", error);
+      console.error("Error buying order item:", error);
+      alert("Failed to buy the order item.");
     }
   };
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-4">Orders to Deliver</h2>
+      <h2 className="text-2xl font-semibold mb-4">Requested Items to Buy</h2>
       <div className="overflow-x-auto">
         <table className="min-w-full border">
           <thead className="bg-gray-100">
@@ -35,25 +44,35 @@ function OrdersToDeliver() {
               <th className="px-4 py-2 border">Patient Name</th>
               <th className="px-4 py-2 border">Medicine</th>
               <th className="px-4 py-2 border">Hospital</th>
+              <th className="px-4 py-2 border">Quantity</th>
               <th className="px-4 py-2 border">Action</th>
             </tr>
           </thead>
           <tbody>
-            {orders.map((order) => (
-              <tr key={order.id} className="text-center">
-                <td className="px-4 py-2 border">{order.patientName}</td>
-                <td className="px-4 py-2 border">{order.medicineName}</td>
-                <td className="px-4 py-2 border">{order.hospitalName}</td>
-                <td className="px-4 py-2 border">
-                  <button
-                    className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                    onClick={() => markAsDelivered(order.id)}
-                  >
-                    Mark Delivered
-                  </button>
+            {orders.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="text-center py-4">
+                  No orders to buy.
                 </td>
               </tr>
-            ))}
+            ) : (
+              orders.map((order) => (
+                <tr key={order.id} className="text-center">
+                  <td className="px-4 py-2 border">{order.patientName}</td>
+                  <td className="px-4 py-2 border">{order.medicineName}</td>
+                  <td className="px-4 py-2 border">{order.hospitalName}</td>
+                  <td className="px-4 py-2 border">{order.quantity}</td>
+                  <td className="px-4 py-2 border">
+                    <button
+                      className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      onClick={() => handleBuy(order.id)}
+                    >
+                      Buy
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -61,4 +80,4 @@ function OrdersToDeliver() {
   );
 }
 
-export default OrdersToDeliver;
+export default DealerOrders;

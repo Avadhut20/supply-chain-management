@@ -88,9 +88,7 @@ router.post("/signin", async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials." });
     }
 
-    const token = jwt.sign({ dealerId: dealer.id }, process.env.JWT_SECRET|| "secret", {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign({ dealerId: dealer.id }, process.env.JWT_SECRET|| "secret");
 
     res.status(200).json({
       message: "Signin successful",
@@ -106,5 +104,164 @@ router.post("/signin", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+
+
+
+const dealerAuthMiddleware = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader ) {
+      return res.status(401).json({ message: "Authorization header missing or malformed" });
+    }
+
+
+    const decoded = jwt.verify(authHeader, process.env.JWT_SECRET || "secret");
+
+    if (decoded.role !== "DEALER") {
+      return res.status(403).json({ message: "Access denied. Not a dealer." });
+    }
+
+    // Optional: Fetch dealer from DB if you want to attach it to req
+    const dealer = await prisma.dealer.findUnique({
+      where: { id: decoded.id },
+    });
+
+    if (!dealer) {
+      return res.status(404).json({ message: "Dealer not found" });
+    }
+   
+    console.log(dealer);
+    req.dealer = dealer; // Attach dealer data to request object
+    next();
+  } catch (err) {
+    console.error("Dealer Auth Error:", err);
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+};
+
+
+
+router.post("/deliver/:orderItemId",dealerAuthMiddleware,async (req,res)=>{
+  const orderItemId = parseInt(req.params.orderItemId);
+
+  try {
+    const orderItem = await prisma.orderItem.update({
+      where: { id: orderItemId },
+      data: {
+        status: "DELIVERED",
+      },
+    });
+
+    await prisma.shipmentLog.create({
+      data: {
+        orderItemId: orderItem.id,
+        fromRole: "DEALER",
+        toRole: "PATIENT",
+        statusNote: "Medicine delivered by dealer",
+      },
+    });
+
+    return res.json({ success: true, message: "Order marked as delivered" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to update delivery status." });
+  }
+});
+
+
+
+
+router.get("/pending-orders", dealerAuthMiddleware, async (req, res) => {
+  try {
+    const dealerId = req.dealer.id;
+
+    // Fetch all order items assigned to this dealer with status 'PENDING'
+    const pendingOrders = await prisma.orderItem.findMany({
+      where: {
+        dealerId,
+        status: "PENDING",
+      },
+      include: {
+        patientOrder: {
+          include: {
+            patient: true,
+          },
+        },
+        product: {
+          include: {
+            manufacturer: true,
+          },
+        },
+        // productOrder: true,
+        manufacturer: true,
+      },
+    });
+
+    // Map to a simpler response structure
+    const orders = pendingOrders.map((order) => ({
+      id: order.id,
+      // patientName: order.patientOrder.patient.name,  // Assuming patient has `name` field
+      patientName: req.dealer.FirstName +"  " + req.dealer.LastName,
+      medicineName: order.product.name,
+      hospitalName: order.patientOrder.patient.hospitalName || "N/A", // or get hospital if needed
+      quantity: order.quantity,
+      manufacturerName: order.product.manufacturer.name,
+    }));
+
+    return res.json({ orders });
+  } catch (error) {
+    console.error("Error fetching pending orders:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// POST /dealer/buy/:orderItemId
+router.post("/buy/:orderItemId", dealerAuthMiddleware, async (req, res) => {
+  try {
+    const dealerId = req.dealerId;
+    const orderItemId = parseInt(req.params.orderItemId);
+
+    // Find order item and verify ownership + status
+    const orderItem = await prisma.orderItem.findUnique({
+      where: { id: orderItemId },
+      include: {
+        manufacturer: true,
+        patientOrder: true,
+      },
+    });
+
+    if (!orderItem) return res.status(404).json({ error: "Order item not found" });
+    if (orderItem.dealerId !== dealerId)
+      return res.status(403).json({ error: "Not authorized to buy this order item" });
+    if (orderItem.status !== "PENDING")
+      return res.status(400).json({ error: "Order item is not pending" });
+
+    // Update order item status to "BOUGHT" or "PROCESSING"
+    await prisma.orderItem.update({
+      where: { id: orderItemId },
+      data: {
+        status: "BOUGHT",
+      },
+    });
+
+    // Create shipment log to notify manufacturer to ship medicines to dealer
+    await prisma.shipmentLog.create({
+      data: {
+        orderItemId: orderItemId,
+        fromRole: "MANUFACTURER",
+        toRole: "DEALER",
+        statusNote: "Order bought by dealer, please ship medicines",
+      },
+    });
+
+    return res.json({ success: true, message: "Order item marked as bought and shipment requested." });
+  } catch (error) {
+    console.error("Error processing order item buy:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 module.exports = router;

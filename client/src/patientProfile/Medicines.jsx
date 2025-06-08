@@ -1,41 +1,58 @@
-// Medicines.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-
 const Medicines = () => {
   const [medicines, setMedicines] = useState([]);
+//   const [loading, setLoading] = useState(false);
+  const [buyingId, setBuyingId] = useState(null); // to track which medicine is being bought
 
   useEffect(() => {
     const fetchMedicines = async () => {
       try {
-        console.log(localStorage.getItem("PATIENT"));
+        const token = localStorage.getItem("PATIENT");
+        if (!token) {
+          alert("Please login first.");
+          return;
+        }
+
         const res = await axios.get("http://localhost:8080/patient/medicines", {
-          headers: { Authorization: localStorage.getItem("PATIENT") },
+          headers: { Authorization: `${token}` },
         });
         setMedicines(res.data);
       } catch (err) {
         console.error("Failed to fetch medicines", err);
+        alert("Failed to load medicines.");
       }
     };
 
     fetchMedicines();
   }, []);
 
-//   const handleBuy = async (medicineId) => {
-//     try {
-//       await axios.post(
-//         `http://localhost:8080/patient/buy/${medicineId}`,
-//         {},
-//         {
-//           headers: { authorization: localStorage.getItem("PATIENT") },
-//         }
-//       );
-//       alert("Medicine purchased successfully!");
-//     } catch {
-//       alert("Failed to buy medicine.");
-//     }
-//   };
+  const handleBuy = async (medicineId) => {
+    try {
+      setBuyingId(medicineId);
+      const token = localStorage.getItem("PATIENT");
+      if (!token) {
+        alert("Please login first.");
+        setBuyingId(null);
+        return;
+      }
+
+      await axios.post(
+        `http://localhost:8080/patient/buy/${medicineId}`,
+        {},
+        {
+          headers: { Authorization: `${token}` },
+        }
+      );
+      alert("Medicine purchased successfully!");
+      setBuyingId(null);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to buy medicine.");
+      setBuyingId(null);
+    }
+  };
 
   return (
     <div className="p-6">
@@ -64,10 +81,15 @@ const Medicines = () => {
                 <td className="py-2 px-4 border">{med.quantity}</td>
                 <td className="py-2 px-4 border">
                   <button
-                    // onClick={() => handleBuy(med.id)}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
+                    onClick={() => handleBuy(med.id)}
+                    disabled={buyingId === med.id}
+                    className={`px-4 py-1 rounded text-white ${
+                      buyingId === med.id
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-green-500 hover:bg-green-600"
+                    }`}
                   >
-                    Buy
+                    {buyingId === med.id ? "Buying..." : "Buy"}
                   </button>
                 </td>
               </tr>
