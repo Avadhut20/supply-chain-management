@@ -3,6 +3,8 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require("@prisma/client");
 const cors = require('cors');
+const dotenv = require("dotenv");
+
 const prisma = new PrismaClient();
 
 router.use(cors());
@@ -54,7 +56,7 @@ function verifyInsuranceToken(req, res, next) {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_jwt_secret");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
         if (decoded.role !== "INSURANCE") {
             return res.status(403).json({ message: "Access denied" });
         }
@@ -76,7 +78,7 @@ function verifyInsuranceToken(req, res, next) {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_jwt_secret");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
         if (decoded.role !== "PATIENT") {
             return res.status(403).json({ message: "Access denied" });
         }

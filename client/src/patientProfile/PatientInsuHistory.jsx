@@ -73,16 +73,16 @@ function PatientInsuHistory() {
           <div className="bg-white ml-72  p-6 rounded-lg shadow-lg w-1/3">
             <h3 className="text-xl font-semibold mb-4">Insurance HISTORY Details</h3>
             
-            <p><strong>Company:</strong> {selectedInsurance.companyName}</p>
-            <p><strong>Patient Name:</strong> {selectedInsurance.mobileNumber}</p>
-            <p><strong>Email:</strong> {selectedInsurance.webSite}</p>
-            <p><strong>Address:</strong> {selectedInsurance.address}</p>
-            <p><strong>Policy No:</strong> {selectedInsurance.policyNo}</p>
-            <p><strong>Policy Name:</strong> {selectedInsurance.policyName}</p>
-            <p><strong>Policy Tenure:</strong> {selectedInsurance.policyTenure}</p>
-            <p><strong>Base Premium:</strong> {selectedInsurance.basePremium}</p>
-            <p><strong>Coverage Info:</strong> {selectedInsurance.coverageInfo}</p>
-            <p><strong>Policy Amount:</strong> {selectedInsurance.policyAmount}</p>
+            <p><strong>Company:</strong> {selectedInsurance.CompanyName}</p>
+            <p><strong>Patient Name:</strong> {selectedInsurance.Mobile_Number}</p>
+            <p><strong>Email:</strong> {selectedInsurance.WebSite}</p>
+            <p><strong>Address:</strong> {selectedInsurance.Address}</p>
+            <p><strong>Policy No:</strong> {selectedInsurance.Policy_No}</p>
+            <p><strong>Policy Name:</strong> {selectedInsurance.Policy_Name}</p>
+            <p><strong>Policy Tenure:</strong> {selectedInsurance.Policy_Tenue}</p>
+            <p><strong>Base Premium:</strong> {selectedInsurance.Base_Premium}</p>
+            <p><strong>Coverage Info:</strong> {selectedInsurance.Coverage_Info}</p>
+            <p><strong>Policy Amount:</strong> {selectedInsurance.Policy_Amount}</p>
             <button
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
               onClick={() => setSelectedInsurance(null)}
