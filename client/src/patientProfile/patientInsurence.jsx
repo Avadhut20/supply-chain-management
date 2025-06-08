@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Web3 from "web3";
-import Close from "../icons/Close";
 import InsuranceManagerABI from "../../../blockchain/build/contracts/InsuranceManager.json";
 import PatientPolicyABI from "../../../blockchain/build/contracts/PatientPolicy.json";
 
-// Replace with your actual contract addresses
 const INSURANCE_MANAGER_ADDRESS = "0x94D3A875Af1a764B64e253B6eb70B309bDE70C70";
 const PATIENT_POLICY_ADDRESS = "0x95a515f2dC1C7bf3cFc97fc3181e79ea64e8d64A";
 
@@ -13,6 +11,8 @@ function PatientInsurance() {
   const [insuranceData, setInsuranceData] = useState([]);
   const [selectedInsurance, setSelectedInsurance] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const ETH_PRICE_IN_INR = 213789.87; // 1 ETH = ₹213789.87
 
   useEffect(() => {
     const fetchInsuranceData = async () => {
@@ -33,7 +33,7 @@ function PatientInsurance() {
               company_address: item.Address,
               policy_no: item.Policy_No,
               policy_name: item.Policy_Name,
-              base_premium: item.Base_Premium,
+              base_premium: item.Base_Premium, // in INR
               policy_amount: item.Policy_Amount,
               coverage_info: item.Coverage,
               policy_tenure: item.Policy_Tenure,
@@ -77,7 +77,6 @@ function PatientInsurance() {
           return;
         }
 
-        // Initialize both contracts
         const insuranceManagerContract = new web3.eth.Contract(
           InsuranceManagerABI.abi,
           INSURANCE_MANAGER_ADDRESS
@@ -88,23 +87,22 @@ function PatientInsurance() {
           PATIENT_POLICY_ADDRESS
         );
 
-        // Get the actual policy details from blockchain
         const policyId = selectedInsurance.id;
 
-        const policy = await insuranceManagerContract.methods.getPolicy(policyId).call();
-        const basePremium = web3.utils.toWei(policy.basePremium.toString(), "ether");
+        const basePremiumINR = parseFloat(selectedInsurance.base_premium);
+        const basePremiumETH = basePremiumINR / ETH_PRICE_IN_INR;
+        const basePremiumWei = web3.utils.toWei(basePremiumETH.toString(), "ether");
 
-        // Call PatientPolicy contract to purchase the policy
         await patientPolicyContract.methods
           .purchasePolicy(policyId)
           .send({
             from: walletAddress,
-            value: basePremium,
+            value: basePremiumWei,
           });
 
         alert("Policy purchased on blockchain successfully!");
 
-        // Save to backend as well
+        // Save to backend
         const response = await axios.post(
           "http://localhost:8080/insurance/patientInsurenceInfo",
           {
@@ -154,7 +152,7 @@ function PatientInsurance() {
             <div>Policy No</div>
             <div>Policy Name</div>
             <div>Policy Tenure</div>
-            <div>Base Premium</div>
+            <div>Base Premium (₹)</div>
             <div>Coverage Info</div>
             <div>Policy Amount</div>
           </div>
@@ -206,7 +204,7 @@ function PatientInsurance() {
               <p><strong>Policy No:</strong> {selectedInsurance.policy_no}</p>
               <p><strong>Policy Name:</strong> {selectedInsurance.policy_name}</p>
               <p><strong>Tenure:</strong> {selectedInsurance.policy_tenure}</p>
-              <p><strong>Base Premium:</strong> {selectedInsurance.base_premium}</p>
+              <p><strong>Base Premium (₹):</strong> {selectedInsurance.base_premium}</p>
               <p><strong>Coverage Info:</strong> {selectedInsurance.coverage_info}</p>
               <p><strong>Policy Amount:</strong> {selectedInsurance.policy_amount}</p>
               <button
