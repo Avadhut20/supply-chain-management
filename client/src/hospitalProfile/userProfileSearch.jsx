@@ -161,23 +161,23 @@ function GeneratePrescription({
   const [medicinesOptions, setMedicinesOptions] = useState({});
 
   const [formData, setFormData] = useState({
-    PID: "",
-    First_Name: "",
-    Last_Name: "",
-    Date_of_Birth: "",
-    Email_ID: "",
-    mobileNumber: "",
-    birthDate: "",
-    diseases: Array(6).fill(""),
-    medicines: [
-      {
-        medicineName: "",
-        disease: "",
-        companyName: "",
-        quantity: "",
-      },
-    ],
-  });
+  PID: "",
+  First_Name: "",
+  Last_Name: "",
+  Date_of_Birth: "",
+  Email_ID: "",
+  mobileNumber: "",
+  birthDate: "",
+  diseases: Array(6).fill(""),
+  medicines: [
+    {
+      // medicineName: "",
+      // companyName: "",
+      quantity: "",
+      productId: null, // 🆕 added
+    },
+  ],
+});
 
   // Fetch blockchain data and diseases
   useEffect(() => {
@@ -300,20 +300,29 @@ const fetchMedicinesByManufacturer = async (companyName, index) => {
     });
   };
 
-  const handleMedicineChange = (index, field, value) => {
-    setFormData((prevData) => {
-      const updatedMedicines = [...prevData.medicines];
+ const handleMedicineChange = (index, field, value) => {
+  setFormData((prevData) => {
+    const updatedMedicines = [...prevData.medicines];
+
+    if (field === "companyName") {
+      updatedMedicines[index].companyName = value;
+      updatedMedicines[index].medicineName = "";
+      updatedMedicines[index].productId = null;
+      fetchMedicinesByManufacturer(value, index);
+    } else if (field === "medicineName") {
+      updatedMedicines[index].medicineName = value;
+      const selectedMed = (medicinesOptions[index] || []).find(
+        (med) => med.name === value
+      );
+      updatedMedicines[index].productId = selectedMed?.id || null;
+    } else {
       updatedMedicines[index][field] = value;
+    }
 
-      // If companyName changes, reset medicineName & fetch medicines
-      if (field === "companyName") {
-        updatedMedicines[index].medicineName = "";
-        fetchMedicinesByManufacturer(value, index);
-      }
+    return { ...prevData, medicines: updatedMedicines };
+  });
+};
 
-      return { ...prevData, medicines: updatedMedicines };
-    });
-  };
 
   const addMedicine = () => {
     setFormData((prevData) => ({
@@ -342,19 +351,17 @@ const fetchMedicinesByManufacturer = async (companyName, index) => {
 const handleTransaction = async () => {
   const cleanedDiseases = formData.diseases
     .map((d) => d.trim())
-    .filter((d) => d !== ""); // Remove empty strings
-   
-    
+    .filter((d) => d !== "");
+
   const prescriptionPayload = {
     patientId: formData.PID,
     medicines: formData.medicines.map((med) => ({
-      disease: med.disease.trim(),
-      medicineName: med.medicineName.trim(),
-      companyName: med.companyName.trim(),
-      quantity: parseInt(med.quantity)
+     
+      
+      quantity: parseInt(med.quantity),
+      productId: med.productId, // ✅ added
     })),
     diseases: cleanedDiseases,
-    // Removed email and birthDate as per schema change
   };
 
   try {
@@ -367,7 +374,6 @@ const handleTransaction = async () => {
     );
 
     console.log("Prescription response:", response.data);
-
     alert("✅ Prescription created successfully.");
     setVisible(false);
   } catch (error) {

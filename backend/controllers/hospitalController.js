@@ -405,6 +405,5 @@ router.post("/prescription", verifyHospitalToken, async (req, res) => {
 
 
 
-
 module.exports = router; 
   

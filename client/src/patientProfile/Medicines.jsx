@@ -8,7 +8,7 @@ const Medicines = () => {
   useEffect(() => {
     const fetchMedicines = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/patient/medicines", {
+        const res = await axios.get("http://localhost:8080/hospital/prescriptions", {
           headers: { authorization: localStorage.getItem("PATIENT") },
         });
         setMedicines(res.data);
@@ -37,25 +37,41 @@ const Medicines = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-xl font-bold">Your Prescribed Medicines</h2>
+      <h2 className="text-xl font-bold mb-4">Your Prescribed Medicines</h2>
       {medicines.length === 0 ? (
         <p>No medicines prescribed yet.</p>
       ) : (
-        medicines.map((med) => (
-          <div key={med.id} className="my-4 p-4 border rounded flex justify-between items-center">
-            <div>
-              <p><strong>Name:</strong> {med.name}</p>
-              <p><strong>Price:</strong> ₹{med.price}</p>
-              <p><strong>Manufacturer:</strong> {med.manufacturer.name}</p>
-            </div>
-            <button
-              onClick={() => handleBuy(med.id)}
-              className="bg-green-500 text-white px-4 py-2 rounded"
-            >
-              Buy
-            </button>
-          </div>
-        ))
+        <table className="min-w-full border">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="py-2 px-4 border">#</th>
+              <th className="py-2 px-4 border">Name</th>
+              <th className="py-2 px-4 border">Price (₹)</th>
+              <th className="py-2 px-4 border">Manufacturer</th>
+              <th className="py-2 px-4 border">Quantity</th>
+              <th className="py-2 px-4 border">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {medicines.map((med, index) => (
+              <tr key={med.id} className="text-center">
+                <td className="py-2 px-4 border">{index + 1}</td>
+                <td className="py-2 px-4 border">{med.name}</td>
+                <td className="py-2 px-4 border">₹{med.price}</td>
+                <td className="py-2 px-4 border">{med.manufacturer.name}</td>
+                <td className="py-2 px-4 border">{med.quantity}</td>
+                <td className="py-2 px-4 border">
+                  <button
+                    onClick={() => handleBuy(med.id)}
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
+                  >
+                    Buy
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

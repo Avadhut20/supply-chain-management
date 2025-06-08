@@ -70,6 +70,69 @@ router.post("/signup", async (req, res) => {
   }
 });
 
+// GET /patient/medicines
+// const verifyPatientToken = (req, res, next) => {
+//   const token = req.headers.authorization;
+//   console.log(token)
+//   if (!token) return res.status(401).json({ message: "No token provided" });
+
+//   try {
+//     console.log(process.env.JWT_SECRET)
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET ||"secret" );
+//     console.log("Decoded token:", decoded.id);
+//     if (decoded.role !== "PATIENT") {
+//       return res.status(403).json({ message: "Access denied" });
+//     }
+//     req.P_ID  = decoded.id;
+//     console.log(req.patientId)
+//     next();
+//     console.log("hi")
+//   } catch (err) {
+//     res.status(401).json({ message: "Invalid token" });
+//   }
+// };
+
+// router.get("/medicines", verifyPatientToken, async (req, res) => {
+//   const P_ID = req.P_ID ;
+
+//   try {
+//     const prescriptions = await prisma.prescription.findMany({
+//       where: {
+//         P_ID : P_ID ,
+//       },
+//       include: {
+//         medicines: {
+//           include: {
+//             product: {
+//               include: {
+//                 manufacturer: true,
+//               },
+//             },
+//           },
+//         },
+//       },
+//     });
+
+//     // Flatten medicines from all prescriptions
+//     const allMedicines = prescriptions.flatMap(p =>
+//       p.medicines.map(m => ({
+//         id: m.product.id,
+//         name: m.product.name,
+//         price: m.product.price,
+//         manufacturer: {
+//           name: m.product.manufacturer.name,
+//         },
+//         quantity: m.quantity,
+//       }))
+//     );
+
+//     res.status(200).json(allMedicines);
+//   } catch (error) {
+//     console.error("Error fetching prescriptions:", error);
+//     res.status(500).json({ message: "Failed to fetch prescribed medicines" });
+//   }
+// });
+
 
 
 module.exports=router
