@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Web3 from "web3";
 import Close from "../icons/Close";
+import InsuranceManagerABI from "../../../blockchain/build/contracts/InsuranceManager.json";
+import PatientPolicyABI from "../../../blockchain/build/contracts/PatientPolicy.json";
+
+// Replace with your actual contract addresses
+const INSURANCE_MANAGER_ADDRESS = "0x94D3A875Af1a764B64e253B6eb70B309bDE70C70";
+const PATIENT_POLICY_ADDRESS = "0x95a515f2dC1C7bf3cFc97fc3181e79ea64e8d64A";
 
 function PatientInsurance() {
   const [insuranceData, setInsuranceData] = useState([]);
@@ -10,14 +17,11 @@ function PatientInsurance() {
   useEffect(() => {
     const fetchInsuranceData = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8080/insurance/list",
-          {
-            headers: {
-              authorization: localStorage.getItem("PATIENT"),
-            },
-          }
-        );
+        const response = await axios.get("http://localhost:8080/insurance/list", {
+          headers: {
+            authorization: localStorage.getItem("PATIENT"),
+          },
+        });
 
         if (Array.isArray(response.data.data)) {
           setInsuranceData(
@@ -37,7 +41,7 @@ function PatientInsurance() {
             }))
           );
         } else {
-          console.error("Invalid data format received:", response.data);
+          console.error("Invalid data format:", response.data);
         }
       } catch (error) {
         console.error("Error fetching insurance data:", error);
@@ -52,54 +56,87 @@ function PatientInsurance() {
     setIsModalOpen(true);
   };
 
-  const handleSave = async () => {
-    //     "CompanyName":   "birla",
-    // "Mobile_Number":"848448484848",
-    // "Website":   "birla.com",
-    // "Address":"DangeChowk",
-    // "Policy_No":   "3",
-    // "Policy_Name":"star health",
-    // "Policy_Tenue":  "12121" ,
-    // "Base_Premium":"222.222",
-    // "Coverage_Info":   "ALL",
-    // "Policy_Amount":"99.99",
-    // "CompanyEmail_ID":   "sdasdsa.emailid"
-    console.log(selectedInsurance);
-    if (selectedInsurance) {
-      const response = await axios.post(
-        "http://localhost:8080/insurance/patientInsurenceInfo",
-        
-        {
-          CompanyName: selectedInsurance.company_name,
-          CompanyID: selectedInsurance.id,
-          Mobile_Number: selectedInsurance.company_mobile,
-          Website: selectedInsurance.company_website,
-          Address: selectedInsurance.company_address,
-          Policy_No: selectedInsurance.policy_no,
-          Policy_Name: selectedInsurance.policy_name,
-          Policy_Tenue: selectedInsurance.policy_tenure,
-          Base_Premium: selectedInsurance.base_premium,
-          Coverage_Info: selectedInsurance.coverage_info,
-          Policy_Amount: selectedInsurance.policy_amount,
-          CompanyEmail_ID: selectedInsurance.company_email,
-        }
-        ,{
-          headers: {
-            authorization: localStorage.getItem("PATIENT"),
-          },
-        }
-      );
-
-      console.log(response.data);
-       alert(response.data.message);
-
-    } else {
-      alert("Please select an insurance policy.");
-    }
-  };
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleSave = async () => {
+    if (!selectedInsurance) {
+      alert("Please select an insurance policy.");
+      return;
+    }
+
+    try {
+      if (window.ethereum) {
+        const web3 = new Web3(window.ethereum);
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+
+        const walletAddress = localStorage.getItem("walletAddress_PATIENT");
+        if (!walletAddress) {
+          alert("Wallet address not found in localStorage.");
+          return;
+        }
+
+        // Initialize both contracts
+        const insuranceManagerContract = new web3.eth.Contract(
+          InsuranceManagerABI.abi,
+          INSURANCE_MANAGER_ADDRESS
+        );
+
+        const patientPolicyContract = new web3.eth.Contract(
+          PatientPolicyABI.abi,
+          PATIENT_POLICY_ADDRESS
+        );
+
+        // Get the actual policy details from blockchain
+        const policyId = selectedInsurance.id;
+
+        const policy = await insuranceManagerContract.methods.getPolicy(policyId).call();
+        const basePremium = web3.utils.toWei(policy.basePremium.toString(), "ether");
+
+        // Call PatientPolicy contract to purchase the policy
+        await patientPolicyContract.methods
+          .purchasePolicy(policyId)
+          .send({
+            from: walletAddress,
+            value: basePremium,
+          });
+
+        alert("Policy purchased on blockchain successfully!");
+
+        // Save to backend as well
+        const response = await axios.post(
+          "http://localhost:8080/insurance/patientInsurenceInfo",
+          {
+            CompanyName: selectedInsurance.company_name,
+            CompanyID: selectedInsurance.id,
+            Mobile_Number: selectedInsurance.company_mobile,
+            Website: selectedInsurance.company_website,
+            Address: selectedInsurance.company_address,
+            Policy_No: selectedInsurance.policy_no,
+            Policy_Name: selectedInsurance.policy_name,
+            Policy_Tenue: selectedInsurance.policy_tenure,
+            Base_Premium: selectedInsurance.base_premium,
+            Coverage_Info: selectedInsurance.coverage_info,
+            Policy_Amount: selectedInsurance.policy_amount,
+            CompanyEmail_ID: selectedInsurance.company_email,
+          },
+          {
+            headers: {
+              authorization: localStorage.getItem("PATIENT"),
+            },
+          }
+        );
+
+        alert(response.data.message);
+        setIsModalOpen(false);
+      } else {
+        alert("MetaMask is not installed.");
+      }
+    } catch (error) {
+      console.error("Transaction or save failed:", error);
+      alert("Something went wrong. Check console for details.");
+    }
   };
 
   return (
@@ -165,29 +202,13 @@ function PatientInsurance() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="p-6 bg-white rounded-lg shadow-lg w-1/3 relative">
               <h3 className="text-xl font-semibold mb-4">Insurance Details</h3>
-              <p>
-                <strong>Company:</strong> {selectedInsurance.company_name}
-              </p>
-              <p>
-                <strong>Policy No:</strong> {selectedInsurance.policy_no}
-              </p>
-              <p>
-                <strong>Policy Name:</strong> {selectedInsurance.policy_name}
-              </p>
-              <p>
-                <strong>Tenure:</strong> {selectedInsurance.policy_tenure}
-              </p>
-              <p>
-                <strong>Base Premium:</strong> {selectedInsurance.base_premium}
-              </p>
-              <p>
-                <strong>Coverage Info:</strong>{" "}
-                {selectedInsurance.coverage_info}
-              </p>
-              <p>
-                <strong>Policy Amount:</strong>{" "}
-                {selectedInsurance.policy_amount}
-              </p>
+              <p><strong>Company:</strong> {selectedInsurance.company_name}</p>
+              <p><strong>Policy No:</strong> {selectedInsurance.policy_no}</p>
+              <p><strong>Policy Name:</strong> {selectedInsurance.policy_name}</p>
+              <p><strong>Tenure:</strong> {selectedInsurance.policy_tenure}</p>
+              <p><strong>Base Premium:</strong> {selectedInsurance.base_premium}</p>
+              <p><strong>Coverage Info:</strong> {selectedInsurance.coverage_info}</p>
+              <p><strong>Policy Amount:</strong> {selectedInsurance.policy_amount}</p>
               <button
                 className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                 onClick={handleCloseModal}
