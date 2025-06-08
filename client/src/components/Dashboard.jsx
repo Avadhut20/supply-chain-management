@@ -132,6 +132,56 @@ function Dashboard() {
       }
 
 
+       case "/CreateProduct":
+        return {
+          arr:[
+           
+            { label: "CreateProduct", path: "/CreateProduct" },
+            { label: "allProducts", path: "/allProducts" },
+            { label: "OrdersDeliverd", path: "/OrdersDeliverd" },
+            { label: "orders", path: "/orders" },
+            ],
+         name:"Dealer Profile"
+      }
+
+      case "/allProducts":
+        return {
+          arr:[
+           
+           { label: "CreateProduct", path: "/CreateProduct" },
+            { label: "allProducts", path: "/allProducts" },
+            { label: "OrdersDeliverd", path: "/OrdersDeliverd" },
+            { label: "orders", path: "/orders" },
+            ],
+         name:"Dealer Profile"
+      }
+
+       case "/orders":
+        return {
+          arr:[
+           
+          { label: "CreateProduct", path: "/CreateProduct" },
+            { label: "allProducts", path: "/allProducts" },
+            { label: "OrdersDeliverd", path: "/OrdersDeliverd" },
+            { label: "orders", path: "/orders" },
+            ],
+         name:"Dealer Profile"
+      }
+       case "/OrdersDeliverd":
+        return {
+          arr:[
+           
+            { label: "CreateProduct", path: "/CreateProduct" },
+            { label: "allProducts", path: "/allProducts" },
+            { label: "OrdersDeliverd", path: "/OrdersDeliverd" },
+            { label: "orders", path: "/orders" },
+            ],
+         name:"Dealer Profile"
+      }
+
+      
+
+
       default:
         return{ 
           arr:[

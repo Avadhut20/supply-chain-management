@@ -29,6 +29,11 @@ import DeliveredMedicines from './DealerProfile/DeliveredMedicines';
 import OrdersToDeliver from './DealerProfile/OrdersToDeliver';
 import ManufacturerSignup from './SignUps/ManufacturerSignup';
 
+import CreateProduct from './manufactureProfile/CreatProduct';
+import AllProducts from './manufactureProfile/allProducts';
+import OrdersDeliverd from './manufactureProfile/OrdersDeliverd';
+import Orders from './manufactureProfile/orders';
+
 function App() {
  
   return (
@@ -69,6 +74,12 @@ function App() {
   
               <Route path={"/DeliveredMedicines"} element={<DeliveredMedicines/>} />
               <Route path={"/OrdersToDeliver"} element={<OrdersToDeliver/>} />
+
+                   {/* manufacturer */}
+               <Route path={"/CreateProduct"} element={<CreateProduct/>} />
+              <Route path={"/AllProducts"} element={<AllProducts/>} />
+               <Route path={"/OrdersDeliverd"} element={<OrdersDeliverd/>} />
+              <Route path={"/Orders"} element={<Orders/>} />
               
 
           
