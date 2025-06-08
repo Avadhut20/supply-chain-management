@@ -2,14 +2,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+
 const Medicines = () => {
   const [medicines, setMedicines] = useState([]);
 
   useEffect(() => {
     const fetchMedicines = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/hospital/prescriptions", {
-          headers: { authorization: localStorage.getItem("PATIENT") },
+        console.log(localStorage.getItem("PATIENT"));
+        const res = await axios.get("http://localhost:8080/patient/medicines", {
+          headers: { Authorization: localStorage.getItem("PATIENT") },
         });
         setMedicines(res.data);
       } catch (err) {
@@ -20,20 +22,20 @@ const Medicines = () => {
     fetchMedicines();
   }, []);
 
-  const handleBuy = async (medicineId) => {
-    try {
-      await axios.post(
-        `http://localhost:8080/patient/buy/${medicineId}`,
-        {},
-        {
-          headers: { authorization: localStorage.getItem("PATIENT") },
-        }
-      );
-      alert("Medicine purchased successfully!");
-    } catch {
-      alert("Failed to buy medicine.");
-    }
-  };
+//   const handleBuy = async (medicineId) => {
+//     try {
+//       await axios.post(
+//         `http://localhost:8080/patient/buy/${medicineId}`,
+//         {},
+//         {
+//           headers: { authorization: localStorage.getItem("PATIENT") },
+//         }
+//       );
+//       alert("Medicine purchased successfully!");
+//     } catch {
+//       alert("Failed to buy medicine.");
+//     }
+//   };
 
   return (
     <div className="p-6">
@@ -62,7 +64,7 @@ const Medicines = () => {
                 <td className="py-2 px-4 border">{med.quantity}</td>
                 <td className="py-2 px-4 border">
                   <button
-                    onClick={() => handleBuy(med.id)}
+                    // onClick={() => handleBuy(med.id)}
                     className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
                   >
                     Buy

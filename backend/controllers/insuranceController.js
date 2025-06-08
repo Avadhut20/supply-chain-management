@@ -239,10 +239,10 @@ router.get("/PatientinsurenceHistory",patientAuth,async (req, res) => {
             }
             
         })
-        if(data.length===0){
-            return res.status(404).json({message:"No insurance companies found"});
-            console.log("smdkskd")
-        }
+        // if(data.length===0){
+        //     return res.status(404).json({message:"No insurance companies found"});
+        //     console.log("smdkskd")
+        // }
         res.status(200).json({ message: "Insurance companies retrieved successfully", data });
     }
     catch(e){

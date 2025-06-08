@@ -19,6 +19,8 @@ router.post("/signin", async (req, res) => {
       if (patient.Password !== password) return res.status(401).json({ message: "Invalid credentials" });
 
       const name = `${patient.First_Name} ${patient.Last_Name}`;
+      console.log("signin ");
+      console.log(process.env.JWT_SECRET);
       const token = jwt.sign({ id: patient.P_ID, email, name, role }, process.env.JWT_SECRET || "secret");
       return res.status(200).json({ message: "User signed in", token });
     }

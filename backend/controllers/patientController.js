@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const router = express.Router();
 router.use(cors());
+router.use(express());
 const prisma = new PrismaClient();
 
 
@@ -70,20 +71,20 @@ router.post("/signup", async (req, res) => {
   }
 });
 
+
 // GET /patient/medicines
 // const verifyPatientToken = (req, res, next) => {
 //   const token = req.headers.authorization;
-//   console.log(token)
 //   if (!token) return res.status(401).json({ message: "No token provided" });
-
+  
 //   try {
-//     console.log(process.env.JWT_SECRET)
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET ||"secret" );
+//   console.log("Decoded token:" + process.env.JWT_SECRET);
+//     const decoded = jwt.decode(token, process.env.JWT_SECRET ||"secret" );
 //     console.log("Decoded token:", decoded.id);
 //     if (decoded.role !== "PATIENT") {
 //       return res.status(403).json({ message: "Access denied" });
 //     }
-//     req.P_ID  = decoded.id;
+//     req.P_ID  = 8;
 //     console.log(req.patientId)
 //     next();
 //     console.log("hi")
@@ -94,7 +95,7 @@ router.post("/signup", async (req, res) => {
 
 // router.get("/medicines", verifyPatientToken, async (req, res) => {
 //   const P_ID = req.P_ID ;
-
+//  console.log("sndfksndksdknsdksnkdnkasmdksm")
 //   try {
 //     const prescriptions = await prisma.prescription.findMany({
 //       where: {
@@ -132,6 +133,51 @@ router.post("/signup", async (req, res) => {
 //     res.status(500).json({ message: "Failed to fetch prescribed medicines" });
 //   }
 // });
+
+
+function authenticatePatient(req, res, next) {
+  const rawHeader = req.headers.authorization;
+  if (!rawHeader) return res.status(401).json({ error: "No token provided" });
+
+  const token = rawHeader.replace("Bearer ", "");
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    console.log("Decoded user:", decoded);
+    next();
+  } catch (err) {
+    console.error("JWT error:", err.name, err.message);
+    return res.status(403).json({ error: err.message });
+  }
+}
+
+
+router.get("/medicines", authenticatePatient, async (req, res) => {
+  try {
+    const patientId = req.user.id; // 🛡️ ensure you decode the JWT token and set req.user in middleware
+
+    const prescriptions = await prisma.prescription.findMany({
+      where: { patientId },
+      include: {
+        hospital: true,
+        medicines: {
+          include: {
+            medicine: {
+              include: {
+                manufacturer: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    res.json(prescriptions);
+  } catch (error) {
+    console.error("Error fetching prescriptions:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 
 
