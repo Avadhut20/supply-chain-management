@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 // const bcrypt = require("bcrypt")
+const dotenv = require("dotenv");
+dotenv.config();
 
 router.post("/signin", async (req, res) => {
   const { email, password, role, walletOnly } = req.body;
@@ -41,11 +43,12 @@ router.post("/signin", async (req, res) => {
       if (walletOnly) return res.status(200).json({ walletAddress: null }); // No wallet
 
       if (insurance.Passwords !== password) return res.status(401).json({ message: "Invalid credentials" });
-
+      console.log(process.env.JWT_SECRET)
       const token = jwt.sign(
         { id: insurance.T_ID, email, name: insurance.Name, role },
         process.env.JWT_SECRET || "secret"
       );
+      
       return res.status(200).json({ message: "User signed in", token });
     }
 

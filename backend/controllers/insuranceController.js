@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const { PrismaClient } = require("@prisma/client");
 const cors = require('cors');
 const dotenv = require("dotenv");
-
+dotenv.config();
 const prisma = new PrismaClient();
 
 router.use(cors());
@@ -52,11 +52,14 @@ router.post("/signup", async (req, res) => {
 function verifyInsuranceToken(req, res, next) {
     const token = req.headers.authorization;
     if (!token) {
+        
         return res.status(401).json({ message: "No token provided" });
     }
-
+console.log(token)
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
+        console.log(process.env.JWT_SECRET)
+        const decoded = jwt.verify(token,  process.env.JWT_SECRET|| "secret");
+        console.log("hi")
         if (decoded.role !== "INSURANCE") {
             return res.status(403).json({ message: "Access denied" });
         }

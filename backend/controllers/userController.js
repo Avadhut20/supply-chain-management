@@ -7,7 +7,7 @@ const router = express.Router();
 const prisma = new PrismaClient();
 const cors = require('cors')
 router.use(cors());
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+const JWT_SECRET = process.env.JWT_SECRET || "secret";
 
 router.post("/signup", async (req, res) => {
   const { username, email,password, role } = req.body;

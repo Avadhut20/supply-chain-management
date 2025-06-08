@@ -7,7 +7,7 @@ function Layout() {
     <div className='flex fixed  overflow-y-auto w-screen bg-gradient-to-r from-indigo-500 via-slate-300 to-blue-500 '>
         <Dashboard />
 
-        <div className='w-full overflow-y-auto  ml-64 '>    
+        <div className='w-full overflow-y-auto h-screen ml-64 '>    
               <Outlet />
             </div>
             

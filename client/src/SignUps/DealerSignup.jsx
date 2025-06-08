@@ -72,7 +72,7 @@ function DealerSignup() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 text-black">
+    <div className="flex items-center overflow-y-auto justify-center min-h-screen bg-gray-100 text-black">
       <ToastContainer />
       <div className="w-full max-w-xl p-8 bg-white rounded-2xl shadow-xl">
         <h2 className="text-2xl font-bold text-center mb-6">Dealer Sign Up</h2>
