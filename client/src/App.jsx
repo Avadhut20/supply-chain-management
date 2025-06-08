@@ -27,6 +27,7 @@ import UserInsurenceHistory from './insurenceProfile/UserInsurenceHistory';
 
 import DeliveredMedicines from './DealerProfile/DeliveredMedicines';
 import OrdersToDeliver from './DealerProfile/OrdersToDeliver';
+import ManufacturerSignup from './SignUps/ManufacturerSignup';
 
 function App() {
  
@@ -43,6 +44,7 @@ function App() {
           <Route path='/InsuranceSignup' element={<InsuranceSignup />} />
           <Route path='/AdminSignup' element={<AdminSignup />} />
           <Route path='/DealerSignup' element={<DealerSignup />} />
+          <Route path={"/Manufacturersignup"} element={<ManufacturerSignup/>} />
 
           <Route path='/SignIn' element={<SignIn />} />
 
@@ -67,6 +69,7 @@ function App() {
   
               <Route path={"/DeliveredMedicines"} element={<DeliveredMedicines/>} />
               <Route path={"/OrdersToDeliver"} element={<OrdersToDeliver/>} />
+              
 
           
         </Route>

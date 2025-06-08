@@ -141,6 +141,7 @@ function Dashboard() {
           { label: "DEALER", path: "/DealerSignup" },
           { label: "SIGN IN", path: "/SignIn" },
           { label: "ADMIN", path: "/AdminSignup" },
+          { label: "Manufacturer", path: "/Manufacturersignup" },
         ]};
     }
   };

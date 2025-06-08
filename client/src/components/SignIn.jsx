@@ -119,6 +119,9 @@ function SignIn() {
         case "ADMIN":
           navigate("/AdminDashboard");
           break;
+        case "MANUFACTURER":
+          navigate("/AdminDashboard");
+          break;  
         default:
           break;
       }
