@@ -3,7 +3,7 @@ import axios from "axios";
 import Web3 from "web3";
 import MedicineTransactionManager from "../../../blockchain/build/contracts/MedicineTransactionManager.json";
 
-const CONTRACT_ADDRESS = "0xfFE50e5a9fd0CA97e29D930C76760CbE8134C476";
+const CONTRACT_ADDRESS = "0xB65CF62C53680759767D2f798f5D2436bdfaFEda";
 
 const DealerReceiveOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -54,7 +54,8 @@ const DealerReceiveOrders = () => {
 
     const orderId = Number(order.onChainOrderId); // ensure correct type
 
-    await contract.methods.dealerDelivered(orderId).send({ from: account });
+    const tx=await contract.methods.dealerDelivered(orderId).send({ from: account });
+    console.log("Transaction successful:", tx);
     console.log("✅ Delivered to Dealer");
 
     // Update backend

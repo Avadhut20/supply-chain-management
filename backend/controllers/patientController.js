@@ -316,8 +316,7 @@ router.post("/buy/:productId", verifyPatientToken, async (req, res) => {
         quantity: 1,
         dealerId: dealer.id,
         manufacturerId: product.manufacturerId,
-        onChainOrderId: 0, // Initialize with 0 or any default value
-        status: "PENDING",
+        status:"PENDING",
       },
     });
 

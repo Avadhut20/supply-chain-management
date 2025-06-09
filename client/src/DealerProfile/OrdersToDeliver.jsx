@@ -3,7 +3,7 @@ import axios from "axios";
 import Web3 from "web3";
 import contractABI from "../../../blockchain/build/contracts/MedicineTransactionManager.json";
 
-const CONTRACT_ADDRESS = "0xfFE50e5a9fd0CA97e29D930C76760CbE8134C476";
+const CONTRACT_ADDRESS = "0xB65CF62C53680759767D2f798f5D2436bdfaFEda";
 
 function DealerOrders() {
   const [orders, setOrders] = useState([]);
@@ -65,6 +65,7 @@ const handleBuy = async (order) => {
     setLoadingOrderId(order.id);
 
     const dealerAddress = localStorage.getItem("walletAddress_DEALER") || account;
+    console.log(order)
 
     const manufacturerAddr = web3.utils.toChecksumAddress(order.manufacturerWalletAddress);
     const hospitalAddr = web3.utils.toChecksumAddress(order.hospitalWalletAddress);
@@ -94,7 +95,7 @@ const handleBuy = async (order) => {
         "0"          // dealer share
       )
       .send({ from: dealerAddr, value: priceInWei });
-
+      console.log("Transaction successful:", tx);
     const event = tx.events?.OrderCreated || tx.events?.MedicineOrdered;
     if (!event) {
       alert("❌ OrderCreated or MedicineOrdered event not found.");

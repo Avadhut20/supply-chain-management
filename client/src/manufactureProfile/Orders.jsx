@@ -3,7 +3,7 @@ import Web3 from "web3";
 import axios from "axios";
 import MedicineTransactionManager from "../../../blockchain/build/contracts/MedicineTransactionManager.json";
 
-const CONTRACT_ADDRESS = "0xfFE50e5a9fd0CA97e29D930C76760CbE8134C476";
+const CONTRACT_ADDRESS = "0xB65CF62C53680759767D2f798f5D2436bdfaFEda";
 
 const ManufacturerOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -79,7 +79,7 @@ const handleShip = async (order) => {
     const onChainOrder = await contract.methods.orders(order.onChainOrderId).call();
     const onChainManufacturer = onChainOrder.manufacturer.toLowerCase();
     const userAccount = account.toLowerCase();
-
+    console.log("On-chain order details:", onChainOrder);
     if (onChainManufacturer !== userAccount) {
       alert("You are not the manufacturer for this order.");
       setLoadingShipId(null);
@@ -94,8 +94,8 @@ const handleShip = async (order) => {
     }
 
     // 🔗 Call smart contract function
-    await contract.methods.manufacturerShipped(order.onChainOrderId).send({ from: account });
-
+    const tx=await contract.methods.manufacturerShipped(order.onChainOrderId).send({ from: account });
+    console.log("✅ Transaction successful:", tx);
     // ✅ Update backend DB
     await axios.post(
       `http://localhost:8080/manufacture/ship/${order.id}`,
