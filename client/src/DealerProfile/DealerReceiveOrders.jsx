@@ -1,8 +1,33 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Web3 from "web3";
+import MedicineTransactionManager from "../../../blockchain/build/contracts/MedicineTransactionManager.json";
+
+const CONTRACT_ADDRESS = "0xfFE50e5a9fd0CA97e29D930C76760CbE8134C476";
 
 const DealerReceiveOrders = () => {
   const [orders, setOrders] = useState([]);
+  const [web3, setWeb3] = useState(null);
+  const [contract, setContract] = useState(null);
+  const [account, setAccount] = useState(null);
+
+  // Init web3 + contract
+  const initWeb3 = async () => {
+    if (window.ethereum) {
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+      const web3Instance = new Web3(window.ethereum);
+      const accounts = await web3Instance.eth.getAccounts();
+
+      const contractInstance = new web3Instance.eth.Contract(
+        MedicineTransactionManager.abi,
+        CONTRACT_ADDRESS
+      );
+
+      setWeb3(web3Instance);
+      setContract(contractInstance);
+      setAccount(accounts[0]);
+    }
+  };
 
   const fetchOrders = async () => {
     try {
@@ -16,21 +41,38 @@ const DealerReceiveOrders = () => {
     }
   };
 
-  const handleShipToPatient = async (orderItemId) => {
-    try {
-      const token = localStorage.getItem("DEALER");
-      await axios.post(`http://localhost:8080/dealer/ship/${orderItemId}`, {}, {
-        headers: { Authorization: token },
-      });
-      alert("Order shipped to patient");
-      fetchOrders(); // Refresh
-    } catch (error) {
-      console.error("Failed to ship to patient", error);
-      alert("Error shipping to patient");
+  const handleShipToPatient = async (order) => {
+  try {
+    const token = localStorage.getItem("DEALER");
+    console.log("Shipping order:", order);
+    console.log("Calling dealerDelivered with onChainOrderId:", order.onChainOrderId);
+
+    if (!order.onChainOrderId) {
+      alert("Order missing onChainOrderId. Cannot proceed.");
+      return;
     }
-  };
+
+    const orderId = Number(order.onChainOrderId); // ensure correct type
+
+    await contract.methods.dealerDelivered(orderId).send({ from: account });
+    console.log("✅ Delivered to Dealer");
+
+    // Update backend
+    await axios.post(`http://localhost:8080/dealer/ship/${order.id}`, {}, {
+      headers: { Authorization: token },
+    });
+
+    alert("✅ Order marked as delivered to patient.");
+    fetchOrders();
+  } catch (error) {
+    console.error("❌ Error in shipping process", error);
+    alert("Something went wrong during shipping.");
+  }
+};
+
 
   useEffect(() => {
+    initWeb3();
     fetchOrders();
   }, []);
 
@@ -46,7 +88,7 @@ const DealerReceiveOrders = () => {
               <th className="px-4 py-2 border">Patient Name</th>
               <th className="px-4 py-2 border">Email</th>
               <th className="px-4 py-2 border">Medicine</th>
-               <th className="px-4 py-2 border">Price</th>
+              <th className="px-4 py-2 border">Price</th>
               <th className="px-4 py-2 border">Actions</th>
             </tr>
           </thead>
@@ -56,11 +98,11 @@ const DealerReceiveOrders = () => {
                 <td className="px-4 py-2">{order.patientName}</td>
                 <td className="px-4 py-2">{order.patientEmail}</td>
                 <td className="px-4 py-2">{order.medicineName}</td>
-                 <td className="px-4 py-2 border">₹{order.price}</td>
+                <td className="px-4 py-2 border">₹{order.price}</td>
                 <td className="px-4 py-2">
                   <button
                     className="bg-green-600 text-white px-4 py-2 rounded"
-                    onClick={() => handleShipToPatient(order.id)}
+                    onClick={() => handleShipToPatient(order)}
                   >
                     Ship to Patient
                   </button>

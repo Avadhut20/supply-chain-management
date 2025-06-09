@@ -3,7 +3,7 @@ import axios from "axios";
 import Web3 from "web3";
 import contractABI from "../../../blockchain/build/contracts/MedicineTransactionManager.json";
 
-const CONTRACT_ADDRESS = "0x60afD1cBd42ABEc160b6AE8D6999F38373eFD260";
+const CONTRACT_ADDRESS = "0xfFE50e5a9fd0CA97e29D930C76760CbE8134C476";
 
 function DealerOrders() {
   const [orders, setOrders] = useState([]);

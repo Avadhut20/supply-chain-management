@@ -349,6 +349,7 @@ router.get("/receive-orders", dealerAuthMiddleware, async (req, res) => {
       medicineName: order.product.name,
        price: order.product.price,
       quantity: order.quantity,
+      onChainOrderId: order.onChainOrderId, // Include this for on-chain tracking
     }));
 
     return res.json({ orders: formatted });

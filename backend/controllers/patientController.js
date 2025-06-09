@@ -127,7 +127,7 @@ router.get("/medicines", verifyPatientToken, async (req, res) => {
     //   select: { FirstName: true, LastName: true, WalletAddress: true },
     // });
     const dealer = await prisma.dealer.findFirst({
-      where: {id:8}
+      where: {id:9}
     });
 
     if (!dealer) {
@@ -170,7 +170,7 @@ router.get("/receive-orders", verifyPatientToken, async (req, res) => {
   try {
     const patientId = req.P_ID;
 
-    const deliveredOrders = await prisma.orderItem.findMany({
+     const deliveredOrders = await prisma.orderItem.findMany({
       where: {
         status: "SHIPPED_DEALER",
         patientOrder: {
@@ -180,6 +180,11 @@ router.get("/receive-orders", verifyPatientToken, async (req, res) => {
       include: {
         product: true,
         dealer: true,
+        patientOrder: {
+          include: {
+            patient: true, // 👈 include patient to access walletAddress
+          },
+        },
       },
     });
 
@@ -188,6 +193,9 @@ router.get("/receive-orders", verifyPatientToken, async (req, res) => {
       medicineName: item.product.name,
       quantity: item.quantity,
       dealerName: `${item.dealer.FirstName} ${item.dealer.LastName}`,
+      onChainOrderId: item.onChainOrderId, 
+     patientWalletAddress: item.patientOrder.patient.walletAddress 
+      // Include onChainOrderId
     }));
 
     res.json({ orders });
@@ -200,13 +208,15 @@ router.post("/receive/:orderItemId", verifyPatientToken, async (req, res) => {
   try {
     const orderItemId = parseInt(req.params.orderItemId);
 
-    const order = await prisma.orderItem.update({
+    // Update order status
+    const updatedOrder = await prisma.orderItem.update({
       where: { id: orderItemId },
       data: {
         status: "DELIVERED",
       },
     });
 
+    // Log shipment
     await prisma.shipmentLog.create({
       data: {
         orderItemId,
@@ -216,12 +226,17 @@ router.post("/receive/:orderItemId", verifyPatientToken, async (req, res) => {
       },
     });
 
-    res.json({ message: "Order marked as received." });
+    // Return onChainOrderId to frontend (assuming updatedOrder has it)
+    res.json({ 
+      message: "Order marked as received.",
+        // <-- IMPORTANT
+    });
   } catch (error) {
     console.error("Error receiving order:", error);
     res.status(500).json({ error: "Failed to mark as received." });
   }
 });
+
 // GET /patient/purchase-history
 router.get("/purchase-history", verifyPatientToken, async (req, res) => {
   try {
@@ -290,7 +305,7 @@ router.post("/buy/:productId", verifyPatientToken, async (req, res) => {
     if (!product) return res.status(404).json({ error: "Product not found" });
 
     const dealer = await prisma.dealer.findFirst({
-      where: {id:8}
+      where: {id:9}
     });
     if (!dealer) return res.status(400).json({ error: "No dealer found" });
 
@@ -301,6 +316,7 @@ router.post("/buy/:productId", verifyPatientToken, async (req, res) => {
         quantity: 1,
         dealerId: dealer.id,
         manufacturerId: product.manufacturerId,
+        onChainOrderId: 0, // Initialize with 0 or any default value
         status: "PENDING",
       },
     });
