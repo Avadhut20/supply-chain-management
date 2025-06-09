@@ -193,7 +193,9 @@ router.get("/pending-orders", dealerAuthMiddleware, async (req, res) => {
         // productOrder: true,
         manufacturer: true,
       },
-    });
+    });  
+    
+    console.log(pendingOrders.patientOrder);
 
     // Map to a simpler response structure
     const orders = pendingOrders.map((order) => ({

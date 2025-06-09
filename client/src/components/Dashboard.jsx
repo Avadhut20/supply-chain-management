@@ -205,7 +205,7 @@ function Dashboard() {
             { label: "OrdersDeliverd", path: "/OrdersDeliverd" },
             { label: "orders", path: "/orders" },
             ],
-         name:"Dealer Profile"
+         name:"MANUFACTURER Profile"
       }
 
       case "/allProducts":
@@ -217,7 +217,7 @@ function Dashboard() {
             { label: "OrdersDeliverd", path: "/OrdersDeliverd" },
             { label: "orders", path: "/orders" },
             ],
-         name:"Dealer Profile"
+         name:"MANUFACTURER Profile"
       }
 
        case "/orders":
@@ -229,7 +229,7 @@ function Dashboard() {
             { label: "OrdersDeliverd", path: "/OrdersDeliverd" },
             { label: "orders", path: "/orders" },
             ],
-         name:"Dealer Profile"
+         name:"MANUFACTURER Profile"
       }
        case "/OrdersDeliverd":
         return {
@@ -240,7 +240,7 @@ function Dashboard() {
             { label: "OrdersDeliverd", path: "/OrdersDeliverd" },
             { label: "orders", path: "/orders" },
             ],
-         name:"Dealer Profile"
+         name:"MANUFACTURER Profile"
       }
 
       
