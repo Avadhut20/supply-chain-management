@@ -7,11 +7,12 @@ function DealerOrders() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        // Assuming the backend returns orders assigned to this dealer
-        const { data } = await axios.get("http://localhost:8080/dealer/pending-orders",{
-          headers: { Authorization: localStorage.getItem("DEALER") }
+        console.log("Fetching orders for dealer with token:", localStorage.getItem("DEALER"));
+        const { data } = await axios.get("http://localhost:8080/dealer/pending-orders", {
+          headers: { Authorization:  localStorage.getItem("DEALER") },
         });
         setOrders(data.orders);
+        console.log("Orders fetched:", data.orders);
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
@@ -21,12 +22,17 @@ function DealerOrders() {
 
   const handleBuy = async (orderItemId) => {
     try {
-      // Call backend to mark order item as bought/processed by dealer
-      await axios.post(`http://localhost:8080/dealer/buy/${orderItemId}`);
-      
-      // Optionally update UI by removing the bought order from list
+      console.log("Buying order item with ID:", orderItemId);
+      await axios.post(
+        `http://localhost:8080/dealer/buy/${orderItemId}`,
+        {}, // No body content
+        {
+          headers: { Authorization: localStorage.getItem("DEALER") },
+        }
+      );
+
       setOrders((prev) => prev.filter((order) => order.id !== orderItemId));
-      
+
       alert("Order item bought successfully!");
     } catch (error) {
       console.error("Error buying order item:", error);

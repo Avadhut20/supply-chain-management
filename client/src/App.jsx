@@ -32,8 +32,11 @@ import ManufacturerSignup from './SignUps/ManufacturerSignup';
 import CreateProduct from './manufactureProfile/CreatProduct';
 import AllProducts from './manufactureProfile/allProducts';
 import OrdersDeliverd from './manufactureProfile/OrdersDeliverd';
-import Orders from './manufactureProfile/orders';
+import Orders from './manufactureProfile/Orders';
 import Medicines from './patientProfile/Medicines';
+import DealerReceiveOrders from './DealerProfile/DealerReceiveOrders';
+import PatientRecieve from './patientProfile/PatientRecieve';
+import PatientPurchase from './patientProfile/PatientPurchase';
 
 function App() {
  
@@ -60,6 +63,8 @@ function App() {
           <Route path='/PatientInsuHistory' element={<PatientInsuHistory/>} />
           <Route path='/PatientMedTrack' element={<PatientMedTrack/>} />
           <Route path='/Medicines' element={<Medicines/>} />
+          <Route path='/PatientRecieve' element={<PatientRecieve/>} />
+          <Route path='/PatientPurchase' element={<PatientPurchase/>} />
 
           {/* Hospital Routes */}
 
@@ -76,6 +81,7 @@ function App() {
   
               <Route path={"/DeliveredMedicines"} element={<DeliveredMedicines/>} />
               <Route path={"/OrdersToDeliver"} element={<OrdersToDeliver/>} />
+              <Route path={"/DealerReceiveOrders"} element={<DealerReceiveOrders/>} />
 
                    {/* manufacturer */}
                <Route path={"/CreateProduct"} element={<CreateProduct/>} />

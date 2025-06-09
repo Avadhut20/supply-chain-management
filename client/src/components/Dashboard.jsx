@@ -19,6 +19,8 @@ function Dashboard() {
           { label: "Show insurance History", path: "/PatientInsuHistory" },
           { label: "Medicine Tracking", path: "/PatientMedTrack" },
           { label: "Medicines", path: "/Medicines" },
+          { label: "PatientRecieve", path: "/PatientRecieve" },
+          { label: "PatientPurchase", path: "/PatientPurchase" },
         ],
        name:"Patient Profile"
       }
@@ -31,6 +33,8 @@ function Dashboard() {
             { label: "Show insurance History", path: "/PatientInsuHistory" },
             { label: "Medicine Tracking", path: "/PatientMedTrack" },
             { label: "Medicines", path: "/Medicines" },
+            { label: "PatientRecieve", path: "/PatientRecieve" },
+            { label: "PatientPurchase", path: "/PatientPurchase" },
           ],
          name:"Patient Profile"
       }
@@ -44,6 +48,8 @@ function Dashboard() {
             { label: "Show insurance History", path: "/PatientInsuHistory" },
             { label: "Medicine Tracking", path: "/PatientMedTrack" },
             { label: "Medicines", path: "/Medicines" },
+            { label: "PatientRecieve", path: "/PatientRecieve" },
+            { label: "PatientPurchase", path: "/PatientPurchase" },
           ],
          name:"Patient Profile"
       }
@@ -56,6 +62,8 @@ function Dashboard() {
             { label: "Show insurance History", path: "/PatientInsuHistory" },
             { label: "Medicine Tracking", path: "/PatientMedTrack" },
             { label: "Medicines", path: "/Medicines" },
+            { label: "PatientRecieve", path: "/PatientRecieve" },
+            { label: "PatientPurchase", path: "/PatientPurchase" },
           ],
          name:"Patient Profile"
       }
@@ -68,6 +76,34 @@ function Dashboard() {
             { label: "Show insurance History", path: "/PatientInsuHistory" },
             { label: "Medicine Tracking", path: "/PatientMedTrack" },
             { label: "Medicines", path: "/Medicines" },
+            { label: "PatientRecieve", path: "/PatientRecieve" },
+            { label: "PatientPurchase", path: "/PatientPurchase" },
+          ],
+         name:"Patient Profile"
+      }
+      case "/PatientRecieve":
+        return {
+          arr:[
+            { label: "User Profile", path: "/PatientUserProfile" },
+            { label: "Show insurance List", path: "/PatientInsurence" },
+            { label: "Show insurance History", path: "/PatientInsuHistory" },
+            { label: "Medicine Tracking", path: "/PatientMedTrack" },
+            { label: "Medicines", path: "/Medicines" },
+            { label: "PatientRecieve", path: "/PatientRecieve" },
+            { label: "PatientPurchase", path: "/PatientPurchase" },
+          ],
+         name:"Patient Profile"
+      }
+      case "/PatientPurchase":
+        return {
+          arr:[
+            { label: "User Profile", path: "/PatientUserProfile" },
+            { label: "Show insurance List", path: "/PatientInsurence" },
+            { label: "Show insurance History", path: "/PatientInsuHistory" },
+            { label: "Medicine Tracking", path: "/PatientMedTrack" },
+            { label: "Medicines", path: "/Medicines" },
+            { label: "PatientRecieve", path: "/PatientRecieve" },
+            { label: "PatientPurchase", path: "/PatientPurchase" },
           ],
          name:"Patient Profile"
       }
@@ -133,6 +169,7 @@ function Dashboard() {
            
             { label: "DeliveredMedicines", path: "/DeliveredMedicines" },
             { label: "OrdersToDeliver", path: "/OrdersToDeliver" },
+            { label: "DealerReceiveOrders", path: "/DealerReceiveOrders" },
             ],
          name:"Dealer Profile"
       }
@@ -143,6 +180,17 @@ function Dashboard() {
            
             { label: "DeliveredMedicines", path: "/DeliveredMedicines" },
             { label: "OrdersToDeliver", path: "/OrdersToDeliver" },
+            { label: "DealerReceiveOrders", path: "/DealerReceiveOrders" },
+            ],
+         name:"Dealer Profile"
+      }
+      case "/DealerReceiveOrders":
+        return {
+          arr:[
+           
+            { label: "DeliveredMedicines", path: "/DeliveredMedicines" },
+            { label: "OrdersToDeliver", path: "/OrdersToDeliver" },
+            { label: "DealerReceiveOrders", path: "/DealerReceiveOrders" },
             ],
          name:"Dealer Profile"
       }
