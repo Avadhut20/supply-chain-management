@@ -51,6 +51,7 @@ function DealerOrders() {
               <th className="px-4 py-2 border">Medicine</th>
               <th className="px-4 py-2 border">Hospital</th>
               <th className="px-4 py-2 border">Quantity</th>
+               <th className="px-4 py-2 border">Price</th> {/* New column */}
               <th className="px-4 py-2 border">Action</th>
             </tr>
           </thead>
@@ -68,6 +69,7 @@ function DealerOrders() {
                   <td className="px-4 py-2 border">{order.medicineName}</td>
                   <td className="px-4 py-2 border">{order.hospitalName}</td>
                   <td className="px-4 py-2 border">{order.quantity}</td>
+                   <td className="px-4 py-2 border">₹{order.price}</td>
                   <td className="px-4 py-2 border">
                     <button
                       className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"

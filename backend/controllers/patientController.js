@@ -90,46 +90,79 @@ const verifyPatientToken = (req, res, next) => {
   }
 };
 
-  router.get("/medicines", verifyPatientToken, async (req, res) => {
-    const P_ID = req.P_ID ;
+router.get("/medicines", verifyPatientToken, async (req, res) => {
+  const P_ID = req.P_ID;
 
-    try {
-      const prescriptions = await prisma.prescription.findMany({
-        where: {
-        patientId : P_ID ,
+  try {
+    const prescriptions = await prisma.prescription.findMany({
+      where: {
+        patientId: P_ID,
+      },
+      include: {
+        hospital: {
+          select: {
+            Hosptial_Name: true,
+            Wallet_Address: true,
+          },
         },
-        include: {
-          medicines: {
-            include: {
-              product: {
-                include: {
-                  manufacturer: true,
+        medicines: {
+          include: {
+            product: {
+              include: {
+                manufacturer: {
+                  select: {
+                    name: true,
+                    walletAddress: true,
+                  },
                 },
               },
             },
           },
         },
-      });
+      },
+    });
 
-      // Flatten medicines from all prescriptions
-      const allMedicines = prescriptions.flatMap(p =>
-        p.medicines.map(m => ({
-          id: m.product.id,
-          name: m.product.name,
-          price: m.product.price,
-          manufacturer: {
-            name: m.product.manufacturer.name,
-          },
-          quantity: m.quantity,
-        }))
-      );
+    // Fetch first dealer
+    const dealer = await prisma.dealer.findFirst({
+      select: { FirstName: true, LastName: true, WalletAddress: true },
+    });
 
-      res.status(200).json(allMedicines);
-    } catch (error) {
-      console.error("Error fetching prescriptions:", error);
-      res.status(500).json({ message: "Failed to fetch prescribed medicines" });
+    if (!dealer) {
+      return res.status(500).json({ message: "No dealer found" });
     }
-  });
+
+    // Format the response
+    const allMedicines = prescriptions.flatMap((p) =>
+      p.medicines.map((m) => ({
+        id: m.product.id,
+        name: m.product.name,
+        price: m.product.price,
+        quantity: m.quantity,
+        manufacturer: {
+          name: m.product.manufacturer.name,
+          walletAddress: m.product.manufacturer.walletAddress,
+        },
+        hospital: {
+          name: p.hospital.Hosptial_Name,
+          walletAddress: p.hospital.Wallet_Address,
+        },
+        dealer: {
+          name: `${dealer.FirstName} ${dealer.LastName}`,
+          walletAddress: dealer.WalletAddress,
+        },
+      }))
+    );
+
+    res.status(200).json(allMedicines);
+  } catch (error) {
+    console.error("Error fetching prescriptions:", error);
+    res.status(500).json({ message: "Failed to fetch prescribed medicines" });
+  }
+});
+
+
+
+  
 router.get("/receive-orders", verifyPatientToken, async (req, res) => {
   try {
     const patientId = req.P_ID;

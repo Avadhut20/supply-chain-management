@@ -190,21 +190,25 @@ router.get("/pending-orders", dealerAuthMiddleware, async (req, res) => {
             manufacturer: true,
           },
         },
-        // productOrder: true,
-        manufacturer: true,
+        manufacturer: true, // This is optional since product already includes manufacturer
       },
-    });  
-    
-    console.log(pendingOrders.patientOrder);
+    });
 
-    // Map to a simpler response structure
+    // Optional debug log
+    if (pendingOrders.length > 0) {
+      console.log("Sample patient info:", pendingOrders[0]?.patientOrder?.patient);
+    } else {
+      console.log("No pending orders found.");
+    }
+
+    // Format response
     const orders = pendingOrders.map((order) => ({
       id: order.id,
-      // patientName: order.patientOrder.patient.name,  // Assuming patient has `name` field
-      patientName: req.dealer.FirstName +"  " + req.dealer.LastName,
+      patientName: `${order.patientOrder.patient.First_Name} ${order.patientOrder.patient.Last_Name}`,
       medicineName: order.product.name,
-      hospitalName: order.patientOrder.patient.hospitalName || "N/A", // or get hospital if needed
+      hospitalName: order.patientOrder.patient.hospitalName || "N/A",
       quantity: order.quantity,
+       price: order.product.price,
       manufacturerName: order.product.manufacturer.name,
     }));
 
@@ -214,6 +218,7 @@ router.get("/pending-orders", dealerAuthMiddleware, async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 // POST /dealer/buy/:orderItemId
 router.post("/buy/:orderItemId", dealerAuthMiddleware, async (req, res) => {
@@ -262,6 +267,9 @@ router.post("/buy/:orderItemId", dealerAuthMiddleware, async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+
 // GET /dealer/receive-orders - fetch orders shipped by manufacturer
 router.get("/receive-orders", dealerAuthMiddleware, async (req, res) => {
   try {
@@ -283,11 +291,22 @@ router.get("/receive-orders", dealerAuthMiddleware, async (req, res) => {
       },
     });
 
+
+      // Optional debug log
+    if (shippedOrders.length > 0) {
+      console.log("Sample patient info:", shippedOrders[0]?.patientOrder?.patient);
+    } else {
+      console.log("No pending orders found.");
+    }
+
+   
+
     const formatted = shippedOrders.map((order) => ({
       id: order.id,
-      patientName: req.dealer.FirstName +"  " + req.dealer.LastName,
+      patientName:  `${order.patientOrder.patient.First_Name} ${order.patientOrder.patient.Last_Name}`,
       patientEmail: req.dealer.Email,
       medicineName: order.product.name,
+       price: order.product.price,
       quantity: order.quantity,
     }));
 

@@ -46,6 +46,7 @@ const DealerReceiveOrders = () => {
               <th className="px-4 py-2 border">Patient Name</th>
               <th className="px-4 py-2 border">Email</th>
               <th className="px-4 py-2 border">Medicine</th>
+               <th className="px-4 py-2 border">Price</th>
               <th className="px-4 py-2 border">Actions</th>
             </tr>
           </thead>
@@ -55,6 +56,7 @@ const DealerReceiveOrders = () => {
                 <td className="px-4 py-2">{order.patientName}</td>
                 <td className="px-4 py-2">{order.patientEmail}</td>
                 <td className="px-4 py-2">{order.medicineName}</td>
+                 <td className="px-4 py-2 border">₹{order.price}</td>
                 <td className="px-4 py-2">
                   <button
                     className="bg-green-600 text-white px-4 py-2 rounded"
