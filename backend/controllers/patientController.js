@@ -127,7 +127,7 @@ router.get("/medicines", verifyPatientToken, async (req, res) => {
     //   select: { FirstName: true, LastName: true, WalletAddress: true },
     // });
     const dealer = await prisma.dealer.findFirst({
-      where: {id:9}
+      where: {id:8}
     });
 
     if (!dealer) {
@@ -305,7 +305,7 @@ router.post("/buy/:productId", verifyPatientToken, async (req, res) => {
     if (!product) return res.status(404).json({ error: "Product not found" });
 
     const dealer = await prisma.dealer.findFirst({
-      where: {id:9}
+      where: {id:8}
     });
     if (!dealer) return res.status(400).json({ error: "No dealer found" });
 

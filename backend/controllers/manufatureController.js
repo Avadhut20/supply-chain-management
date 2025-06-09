@@ -183,6 +183,40 @@ router.post("/ship/:orderItemId", authenticateManufacturer, async (req, res) => 
 });
 
 
-module.exports = router;
+router.get("/shipped", authenticateManufacturer, async (req, res) => {
+  try {
+    const manufacturerId = req.manufacturer.id;
 
-module.exports=router
+    const shippedOrders = await prisma.orderItem.findMany({
+      where: {
+        status: "SHIPPED_DEALER",
+        manufacturerId: manufacturerId,
+      },
+      include: {
+        product: true,
+        manufacturer: true, // include manufacturer instead of dealer
+        patientOrder: {
+          include: {
+            patient: true,
+          },
+        },
+      },
+    });
+
+    const orders = shippedOrders.map((item) => ({
+  id: item.id,
+  medicineName: item.product.name,
+  quantity: item.quantity,
+  patientName: `${item.patientOrder.patient.First_Name} ${item.patientOrder.patient.Last_Name}`,
+}));
+
+
+    res.json({ orders });
+  } catch (err) {
+    console.error("Error fetching shipped orders:", err);
+    res.status(500).json({ error: "Failed to fetch shipped orders" });
+  }
+});
+
+
+module.exports = router;

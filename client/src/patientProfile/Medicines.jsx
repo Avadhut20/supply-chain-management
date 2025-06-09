@@ -4,7 +4,7 @@ import Web3 from "web3";
 import MedicineTransactionManager from "../../../blockchain/build/contracts/MedicineTransactionManager.json";
 
 const ETH_RATE_INR = 213509.95; // Update this value based on live rate
-const CONTRACT_ADDRESS = "0xB65CF62C53680759767D2f798f5D2436bdfaFEda"; // Your deployed contract address
+const CONTRACT_ADDRESS = "0x4A8EFB4754C2fC12BBDa0450261277502305C78B"; // Your deployed contract address
 
 const Medicines = () => {
   const [medicines, setMedicines] = useState([]);

@@ -41,7 +41,8 @@ const PatientPurchase = () => {
                 <td className="px-4 py-2">{order.medicineName}</td>
                 <td className="px-4 py-2">{order.quantity}</td>
                 <td className="px-4 py-2">{order.dealerName}</td>
-                <td className="px-4 py-2">{new Date(order.deliveredAt).toLocaleString()}</td>
+                {/* <td className="px-4 py-2">{new Date(order.deliveredAt).toLocaleString()}</td> */}
+                 <td className="px-4 py-2">{getCurrentDate()}</td>
               </tr>
             ))}
           </tbody>
@@ -50,5 +51,15 @@ const PatientPurchase = () => {
     </div>
   );
 };
+
+function getCurrentDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+// console.log(getCurrentDate()); // Example output: 2025-06-09
 
 export default PatientPurchase;
