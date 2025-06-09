@@ -234,6 +234,7 @@ model OrderItem {
   manufacturer     Manufacturer @relation("ManufacturerOrders", fields: [manufacturerId], references: [id])
   status           String
   shipmentLogs     ShipmentLog[] // ✅ Fix for ShipmentLog relation
+  onChainOrderId    String? 
 }
 
 
