@@ -55,84 +55,77 @@ function DealerOrders() {
     fetchOrders();
   }, []);
 
-  const handleBuy = async (order) => {
-    try {
-      if (!contract || !web3 || !account) {
-        alert("Web3 or contract not initialized.");
-        return;
-      }
-
-      setLoadingOrderId(order.id);
-
-      const dealerAddress = localStorage.getItem("walletAddress_DEALER") || account;
-
-      // Validate addresses and convert to checksum format
-      const manufacturerAddr = web3.utils.toChecksumAddress(order.manufacturerWalletAddress);
-      const hospitalAddr = web3.utils.toChecksumAddress(order.hospitalWalletAddress);
-      const dealerAddr = web3.utils.toChecksumAddress(dealerAddress);
-
-      console.log("📦 Order ID:", order.id);
-      console.log("🏭 Manufacturer wallet from backend:", manufacturerAddr);
-      console.log("🏥 Hospital wallet from backend:", hospitalAddr);
-      console.log("🧾 Dealer wallet (localStorage):", dealerAddr);
-
-      // Double check addresses
-      if (
-        !web3.utils.isAddress(manufacturerAddr) ||
-        !web3.utils.isAddress(hospitalAddr) ||
-        !web3.utils.isAddress(dealerAddr)
-      ) {
-        alert("❌ One or more wallet addresses are invalid.");
-        setLoadingOrderId(null);
-        return;
-      }
-
-      const INR_TO_ETH = 0.000034;
-      const priceInEth = order.price * INR_TO_ETH;
-      const priceInWei = web3.utils.toWei(priceInEth.toString(), "ether");
-
-      console.log("🪙 Price in Wei:", priceInWei);
-
-      const tx = await contract.methods
-        .createOrder(
-          manufacturerAddr,
-          hospitalAddr,
-          dealerAddr,
-          priceInWei,  // hospital share (in wei)
-          "0"          // dealer share, for now 0
-        )
-        .send({ from: dealerAddr, value: priceInWei });
-
-      console.log("✅ Transaction receipt:", tx);
-
-      const event = tx.events?.OrderCreated || tx.events?.MedicineOrdered;
-      if (!event) {
-        alert("❌ OrderCreated or MedicineOrdered event not found in transaction receipt.");
-        setLoadingOrderId(null);
-        return;
-      }
-
-      const onChainOrderIdRaw = event.returnValues?.orderId;
-      const onChainOrderId = onChainOrderIdRaw?.toString();
-
-      console.log("🆔 onChainOrderId:", onChainOrderId);
-      console.log("🏭 Manufacturer stored on-chain:", event.returnValues.manufacturer || event.returnValues.patient);
-
-      await axios.post(
-        `http://localhost:8080/dealer/buy/${order.id}`,
-        { onChainOrderId },
-        { headers: { Authorization: localStorage.getItem("DEALER") } }
-      );
-
-      setOrders((prev) => prev.filter((o) => o.id !== order.id));
-      alert("✅ Order bought successfully!");
-    } catch (error) {
-      console.error("❌ Failed to buy order:", error);
-      alert(`Failed to buy order: ${error.message || error}`);
-    } finally {
-      setLoadingOrderId(null);
+const handleBuy = async (order) => {
+  try {
+    if (!contract || !web3 || !account) {
+      alert("Web3 or contract not initialized.");
+      return;
     }
-  };
+
+    setLoadingOrderId(order.id);
+
+    const dealerAddress = localStorage.getItem("walletAddress_DEALER") || account;
+
+    const manufacturerAddr = web3.utils.toChecksumAddress(order.manufacturerWalletAddress);
+    const hospitalAddr = web3.utils.toChecksumAddress(order.hospitalWalletAddress);
+    const dealerAddr = web3.utils.toChecksumAddress(dealerAddress);
+
+    if (
+      !web3.utils.isAddress(manufacturerAddr) ||
+      !web3.utils.isAddress(hospitalAddr) ||
+      !web3.utils.isAddress(dealerAddr)
+    ) {
+      alert("❌ One or more wallet addresses are invalid.");
+      setLoadingOrderId(null);
+      return;
+    }
+
+    const INR_TO_ETH = 0.000034;
+    const priceInEth = order.price * INR_TO_ETH;
+    const priceInWei = web3.utils.toWei(priceInEth.toString(), "ether");
+
+    // Create order on-chain
+    const tx = await contract.methods
+      .createOrder(
+        manufacturerAddr,
+        hospitalAddr,
+        dealerAddr,
+        priceInWei,  // hospital share
+        "0"          // dealer share
+      )
+      .send({ from: dealerAddr, value: priceInWei });
+
+    const event = tx.events?.OrderCreated || tx.events?.MedicineOrdered;
+    if (!event) {
+      alert("❌ OrderCreated or MedicineOrdered event not found.");
+      setLoadingOrderId(null);
+      return;
+    }
+
+    const onChainOrderIdRaw = event.returnValues?.orderId;
+    const onChainOrderId = onChainOrderIdRaw?.toString();
+
+    // 👇 Confirm dealer's participation to move status to DealerPurchased (1)
+    await contract.methods
+      .dealerConfirmed(onChainOrderId)
+      .send({ from: dealerAddr });
+
+    // Save onChainOrderId to backend
+    await axios.post(
+      `http://localhost:8080/dealer/buy/${order.id}`,
+      { onChainOrderId },
+      { headers: { Authorization: localStorage.getItem("DEALER") } }
+    );
+
+    setOrders((prev) => prev.filter((o) => o.id !== order.id));
+    alert("✅ Order bought and confirmed successfully!");
+  } catch (error) {
+    console.error("❌ Failed to buy order:", error);
+    alert(`Failed to buy order: ${error.message || error}`);
+  } finally {
+    setLoadingOrderId(null);
+  }
+};
 
   return (
     <div className="p-6">

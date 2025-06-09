@@ -140,6 +140,7 @@ router.get("/pending-orders", authenticateManufacturer, async (req, res) => {
 
     const formatted = pendingOrders.map(order => ({
       id: order.id,
+      onChainOrderId: order.onChainOrderId, // ✅ Must include this
       medicineName: order.product.name,
       quantity: order.quantity,
       dealerName: order.dealer?.FirstName + " " + order.dealer?.LastName,

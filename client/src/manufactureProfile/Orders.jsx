@@ -61,62 +61,62 @@ const ManufacturerOrders = () => {
   };
 
   // Handle marking order as shipped on-chain
-  const handleShip = async (order) => {
-    if (!web3 || !contract || !account) {
-      alert("Web3 or account not initialized.");
-      return;
-    }
+const handleShip = async (order) => {
+  if (!web3 || !contract || !account) {
+    alert("Web3 or account not initialized.");
+    return;
+  }
 
-    if (!order.onChainOrderId && order.onChainOrderId !== 0) {
-      alert("Missing on-chain order ID.");
-      return;
-    }
+  if (!order.onChainOrderId && order.onChainOrderId !== 0) {
+    alert("Missing on-chain order ID.");
+    return;
+  }
 
-    try {
-      setLoadingShipId(order.id);
-      console.log("🧾 Fetching on-chain order with ID:", order.onChainOrderId);
+  try {
+    setLoadingShipId(order.id);
+    console.log("🧾 Fetching on-chain order with ID:", order.onChainOrderId);
 
-      // Fetch on-chain order details
-      const onChainOrder = await contract.methods.orders(order.onChainOrderId).call();
-      console.log("🔍 On-chain order:", onChainOrder);
-      console.log("🦊 Your wallet:", account);
+    const onChainOrder = await contract.methods.orders(order.onChainOrderId).call();
+    const onChainManufacturer = onChainOrder.manufacturer.toLowerCase();
+    const userAccount = account.toLowerCase();
 
-      // Validate manufacturer address (checksum to lowercase)
-      const onChainManufacturer = onChainOrder.manufacturer.toLowerCase();
-      const userAccount = account.toLowerCase();
-
-      if (onChainManufacturer === "0x0000000000000000000000000000000000000000") {
-        alert("On-chain order manufacturer is not set yet.");
-        setLoadingShipId(null);
-        return;
-      }
-
-      if (onChainManufacturer !== userAccount) {
-        alert("You are not the manufacturer for this order.");
-        setLoadingShipId(null);
-        return;
-      }
-
-      // Check order status before shipping (should be DealerPurchased = 1)
-      const orderStatus = Number(onChainOrder.status);
-      if (orderStatus !== 1) {
-        alert("Order is not in a state to be shipped (must be DealerPurchased).");
-        setLoadingShipId(null);
-        return;
-      }
-
-      // Call manufacturerShipped function on contract
-      await contract.methods.manufacturerShipped(order.onChainOrderId).send({ from: account });
-
-      alert("✅ Marked as shipped on blockchain.");
-      await fetchOrders(); // refresh orders from backend
-    } catch (err) {
-      console.error("❌ Failed to mark as shipped:", err);
-      alert("MetaMask transaction failed.");
-    } finally {
+    if (onChainManufacturer !== userAccount) {
+      alert("You are not the manufacturer for this order.");
       setLoadingShipId(null);
+      return;
     }
-  };
+
+    const orderStatus = Number(onChainOrder.status);
+    if (orderStatus !== 1) {
+      alert("Order is not in a state to be shipped (must be DealerPurchased).");
+      setLoadingShipId(null);
+      return;
+    }
+
+    // 🔗 Call smart contract function
+    await contract.methods.manufacturerShipped(order.onChainOrderId).send({ from: account });
+
+    // ✅ Update backend DB
+    await axios.post(
+      `http://localhost:8080/manufacture/ship/${order.id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("MANUFACTURE")}`,
+        },
+      }
+    );
+
+    alert("✅ Marked as shipped on blockchain and backend.");
+    await fetchOrders();
+  } catch (err) {
+    console.error("❌ Failed to mark as shipped:", err);
+    alert("Transaction or server error.");
+  } finally {
+    setLoadingShipId(null);
+  }
+};
+
 
   useEffect(() => {
     initWeb3();
