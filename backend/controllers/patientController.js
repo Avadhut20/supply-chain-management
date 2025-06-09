@@ -83,7 +83,7 @@ const verifyPatientToken = (req, res, next) => {
       return res.status(403).json({ message: "Access denied" });
     }
     req.P_ID = decoded.id;
-    console.log("Patient ID from token:", req.P_ID);
+    // console.log("Patient ID from token:", req.P_ID);
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid token" });
@@ -123,8 +123,11 @@ router.get("/medicines", verifyPatientToken, async (req, res) => {
     });
 
     // Fetch first dealer
+    // const dealer = await prisma.dealer.findFirst({
+    //   select: { FirstName: true, LastName: true, WalletAddress: true },
+    // });
     const dealer = await prisma.dealer.findFirst({
-      select: { FirstName: true, LastName: true, WalletAddress: true },
+      where: {id:8}
     });
 
     if (!dealer) {
@@ -255,7 +258,7 @@ router.get("/purchase-history", verifyPatientToken, async (req, res) => {
 
 
 
- router.post("/buy/:productId", verifyPatientToken, async (req, res) => {
+router.post("/buy/:productId", verifyPatientToken, async (req, res) => {
   const productId = parseInt(req.params.productId);
 
   try {
@@ -286,7 +289,9 @@ router.get("/purchase-history", verifyPatientToken, async (req, res) => {
 
     if (!product) return res.status(404).json({ error: "Product not found" });
 
-    const dealer = await prisma.dealer.findFirst();
+    const dealer = await prisma.dealer.findFirst({
+      where: {id:8}
+    });
     if (!dealer) return res.status(400).json({ error: "No dealer found" });
 
     const orderItem = await prisma.orderItem.create({

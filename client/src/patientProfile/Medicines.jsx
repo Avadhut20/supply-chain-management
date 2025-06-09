@@ -4,7 +4,7 @@ import Web3 from "web3";
 import MedicineTransactionManager from "../../../blockchain/build/contracts/MedicineTransactionManager.json";
 
 const ETH_RATE_INR = 213509.95; // Update this value based on live rate
-const CONTRACT_ADDRESS = "0x963a0C451AE68f67888cC45CF3679612dfFC7EB2"; // Your deployed contract address
+const CONTRACT_ADDRESS = "0x17845d148794CBFd39DB1B94A4AF1189340eB3b5"; // Your deployed contract address
 
 const Medicines = () => {
   const [medicines, setMedicines] = useState([]);
@@ -103,7 +103,8 @@ const Medicines = () => {
         .send({ from: account, value: priceInWei });
 
       console.log("Transaction success:", tx.transactionHash);
-
+      console.log(token);
+      console.log("medicine id --> " + medicine.id);
       await axios.post(
         `http://localhost:8080/patient/buy/${medicine.id}`,
         {},

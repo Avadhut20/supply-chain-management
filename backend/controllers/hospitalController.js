@@ -29,7 +29,7 @@ router.post('/signup', async (req, res) => {
   try {
     // Hash password before storing
     // const hashedPassword = await bcrypt.hash(Password, 10);
-
+        console.log(req.body);
     const hospital = await prisma.hospital.create({
       data: {
         Hosptial_Name,
@@ -39,7 +39,8 @@ router.post('/signup', async (req, res) => {
         Address,
         Wallet_Address,
       },
-    });
+    });console.log(hospital);
+     
 
     res.status(201).json({ message: 'Hospital registered successfully', hospital });
   } catch (error) {

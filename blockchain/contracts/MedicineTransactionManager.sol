@@ -26,19 +26,33 @@ contract MedicineTransactionManager {
     uint public orderCounter;
     mapping(uint => MedicineOrder) public orders;
 
+    event OrderCreated(
+        uint indexed orderId,
+        address indexed manufacturer,
+        address indexed hospital,
+        address dealer
+    );
+
     event MedicineOrdered(
-        uint orderId,
+        uint indexed orderId,
         address patient,
         address manufacturer,
         address hospital,
         address dealer,
         uint price
     );
-    event DealerConfirmed(uint orderId);
-    event ManufacturerShipped(uint orderId);
-    event DealerDelivered(uint orderId);
-    event PatientReceived(uint orderId);
-    event PaymentReleased(uint orderId, address hospital, uint hospitalShare, address dealer, uint dealerShare);
+
+    event DealerConfirmed(uint indexed onChainOrderId);
+    event ManufacturerShipped(uint indexed orderId);
+    event DealerDelivered(uint indexed orderId);
+    event PatientReceived(uint indexed orderId);
+    event PaymentReleased(
+        uint indexed orderId,
+        address hospital,
+        uint hospitalShare,
+        address dealer,
+        uint dealerShare
+    );
 
     function createOrder(
         address manufacturer,
@@ -47,6 +61,10 @@ contract MedicineTransactionManager {
         uint hospitalShare,
         uint dealerShare
     ) public payable returns (uint) {
+        require(manufacturer != address(0), "Manufacturer address cannot be zero");
+        require(hospital != address(0), "Hospital address cannot be zero");
+        require(dealer != address(0), "Dealer address cannot be zero");
+
         uint price = hospitalShare + dealerShare;
         require(msg.value == price, "Incorrect ETH sent");
 
@@ -62,13 +80,18 @@ contract MedicineTransactionManager {
             status: OrderStatus.Ordered
         });
 
+        emit OrderCreated(orderCounter, manufacturer, hospital, dealer);
+
         emit MedicineOrdered(orderCounter, msg.sender, manufacturer, hospital, dealer, price);
+
         orderCounter++;
         return orderCounter - 1;
     }
 
     function dealerConfirmed(uint orderId) public {
-        require(orders[orderId].status == OrderStatus.Ordered, "Invalid state");
+        require(orderId < orderCounter, "Order ID does not exist");
+        require(orders[orderId].status == OrderStatus.Ordered, "Order is not in 'Ordered' state");
+        require(msg.sender == orders[orderId].dealer, "Caller is not the assigned dealer");
         orders[orderId].status = OrderStatus.DealerPurchased;
         emit DealerConfirmed(orderId);
     }

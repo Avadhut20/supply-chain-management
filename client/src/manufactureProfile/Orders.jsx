@@ -1,18 +1,57 @@
 import React, { useEffect, useState } from "react";
+import Web3 from "web3";
 import axios from "axios";
+import MedicineTransactionManager from "../../../blockchain/build/contracts/MedicineTransactionManager.json";
+
+const CONTRACT_ADDRESS = "0x60afD1cBd42ABEc160b6AE8D6999F38373eFD260";
 
 const ManufacturerOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [web3, setWeb3] = useState(null);
+  const [account, setAccount] = useState(null);
+  const [contract, setContract] = useState(null);
+  const [loadingShipId, setLoadingShipId] = useState(null);
 
+  // Initialize Web3, contract, and MetaMask account
+  const initWeb3 = async () => {
+    if (window.ethereum) {
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const web3Instance = new Web3(window.ethereum);
+        const accounts = await web3Instance.eth.getAccounts();
+
+        const contractInstance = new web3Instance.eth.Contract(
+          MedicineTransactionManager.abi,
+          CONTRACT_ADDRESS
+        );
+
+        setWeb3(web3Instance);
+        setAccount(accounts[0]);
+        setContract(contractInstance);
+        console.log("✅ Connected MetaMask account:", accounts[0]);
+      } catch (err) {
+        alert("MetaMask authorization failed or cancelled.");
+        console.error("MetaMask error:", err);
+      }
+    } else {
+      alert("MetaMask is not installed. Please install it to continue.");
+    }
+  };
+
+  // Fetch orders from backend
   const fetchOrders = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("MANUFACTURE");
-      const res = await axios.get("http://localhost:8080/manufacture/pending-orders", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.get(
+        "http://localhost:8080/manufacture/pending-orders",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setOrders(res.data.orders || []);
     } catch (err) {
       console.error("Failed to fetch orders:", err);
@@ -21,23 +60,66 @@ const ManufacturerOrders = () => {
     }
   };
 
-  const handleShip = async (orderItemId) => {
+  // Handle marking order as shipped on-chain
+  const handleShip = async (order) => {
+    if (!web3 || !contract || !account) {
+      alert("Web3 or account not initialized.");
+      return;
+    }
+
+    if (!order.onChainOrderId && order.onChainOrderId !== 0) {
+      alert("Missing on-chain order ID.");
+      return;
+    }
+
     try {
-      const token = localStorage.getItem("MANUFACTURE");
-      await axios.post(`http://localhost:8080/manufacture/ship/${orderItemId}`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      alert("Order marked as shipped");
-      fetchOrders(); // Refresh orders
+      setLoadingShipId(order.id);
+      console.log("🧾 Fetching on-chain order with ID:", order.onChainOrderId);
+
+      // Fetch on-chain order details
+      const onChainOrder = await contract.methods.orders(order.onChainOrderId).call();
+      console.log("🔍 On-chain order:", onChainOrder);
+      console.log("🦊 Your wallet:", account);
+
+      // Validate manufacturer address (checksum to lowercase)
+      const onChainManufacturer = onChainOrder.manufacturer.toLowerCase();
+      const userAccount = account.toLowerCase();
+
+      if (onChainManufacturer === "0x0000000000000000000000000000000000000000") {
+        alert("On-chain order manufacturer is not set yet.");
+        setLoadingShipId(null);
+        return;
+      }
+
+      if (onChainManufacturer !== userAccount) {
+        alert("You are not the manufacturer for this order.");
+        setLoadingShipId(null);
+        return;
+      }
+
+      // Check order status before shipping (should be DealerPurchased = 1)
+      const orderStatus = Number(onChainOrder.status);
+      if (orderStatus !== 1) {
+        alert("Order is not in a state to be shipped (must be DealerPurchased).");
+        setLoadingShipId(null);
+        return;
+      }
+
+      // Call manufacturerShipped function on contract
+      await contract.methods.manufacturerShipped(order.onChainOrderId).send({ from: account });
+
+      alert("✅ Marked as shipped on blockchain.");
+      await fetchOrders(); // refresh orders from backend
     } catch (err) {
-      console.error("Failed to mark as shipped:", err);
-      alert("Error shipping the order");
+      console.error("❌ Failed to mark as shipped:", err);
+      alert("MetaMask transaction failed.");
+    } finally {
+      setLoadingShipId(null);
     }
   };
 
   useEffect(() => {
+    initWeb3();
     fetchOrders();
   }, []);
 
@@ -67,14 +149,15 @@ const ManufacturerOrders = () => {
                   <td className="px-4 py-2">{order.id}</td>
                   <td className="px-4 py-2">{order.medicineName}</td>
                   <td className="px-4 py-2">{order.quantity}</td>
-                  <td className="px-4 py-2">{order.dealerName}</td>
+                  <td className="px-4 py-2">{order.dealerName || "N/A"}</td>
                   <td className="px-4 py-2">{order.hospitalName}</td>
                   <td className="px-4 py-2">
                     <button
-                      onClick={() => handleShip(order.id)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                      onClick={() => handleShip(order)}
+                      disabled={loadingShipId === order.id}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
                     >
-                      Mark as Shipped
+                      {loadingShipId === order.id ? "Shipping..." : "Mark as Shipped"}
                     </button>
                   </td>
                 </tr>

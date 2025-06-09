@@ -172,9 +172,8 @@ router.post("/deliver/:orderItemId",dealerAuthMiddleware,async (req,res)=>{
 router.get("/pending-orders", dealerAuthMiddleware, async (req, res) => {
   try {
     const dealerId = req.dealer.id;
-    console.log(req.dealer);
+    console.log("✅ Dealer ID:", dealerId);
 
-    // Fetch all order items assigned to this dealer with status 'PENDING'
     const pendingOrders = await prisma.orderItem.findMany({
       where: {
         dealerId,
@@ -185,34 +184,40 @@ router.get("/pending-orders", dealerAuthMiddleware, async (req, res) => {
           include: {
             patient: {
               include: {
-                Hospital: true, // ✅ Include hospital for wallet & name
+                Hospital: true,
               },
             },
           },
         },
         product: {
           include: {
-            manufacturer: true, // ✅ Include manufacturer for wallet
+            manufacturer: true,
           },
         },
       },
     });
 
-    // Map response with safe null-checks
-    const orders = pendingOrders.map((order) => {
+    console.log("🔍 Raw pending orders:", JSON.stringify(pendingOrders, null, 2));
+
+    const orders = pendingOrders.map((order, idx) => {
       const patient = order.patientOrder?.patient;
       const hospital = patient?.Hospital;
       const manufacturer = order.product?.manufacturer;
 
+      console.log(`🔹 Order #${idx + 1}`);
+      console.log("📦 Medicine:", order.product?.name);
+      console.log("🏭 Manufacturer ID:", manufacturer?.id);
+      console.log("🏭 Manufacturer wallet:", manufacturer?.walletAddress);
+      console.log("🏥 Hospital wallet:", hospital?.Wallet_Address);
+
       return {
         id: order.id,
+        onChainOrderId: order.onChainOrderId, // ✅ Include this
         patientName: `${patient?.First_Name || "Unknown"} ${patient?.Last_Name || ""}`,
         medicineName: order.product?.name || "Unknown",
-        hospitalName: hospital?.name || "N/A",
+        hospitalName: hospital?.Hosptial_Name || "N/A", // ✅ Fixed name
         quantity: order.quantity,
         price: order.product?.price || 0,
-
-        // Smart contract fields
         manufacturerWalletAddress: manufacturer?.walletAddress || "",
         hospitalWalletAddress: hospital?.Wallet_Address || "",
       };
@@ -220,10 +225,12 @@ router.get("/pending-orders", dealerAuthMiddleware, async (req, res) => {
 
     return res.json({ orders });
   } catch (error) {
-    console.error("Error fetching pending orders:", error);
+    console.error("❌ Error fetching pending orders:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
 
 
 
@@ -239,11 +246,14 @@ router.post("/buy/:orderItemId", dealerAuthMiddleware, async (req, res) => {
     console.log("Order Item ID:", orderItemId);
     console.log("onChainOrderId:", onChainOrderId);
 
+    // Validate that it's a non-empty string
     if (!onChainOrderId || typeof onChainOrderId !== "string") {
-      return res.status(400).json({ error: "onChainOrderId is required and must be a string" });
+      return res
+        .status(400)
+        .json({ error: "onChainOrderId is required and must be a string" });
     }
 
-    // Find the order item and verify dealer ownership + status
+    // Step 1: Validate the order item
     const orderItem = await prisma.orderItem.findUnique({
       where: { id: orderItemId },
       include: {
@@ -252,22 +262,33 @@ router.post("/buy/:orderItemId", dealerAuthMiddleware, async (req, res) => {
       },
     });
 
-    if (!orderItem) return res.status(404).json({ error: "Order item not found" });
-    if (orderItem.dealerId !== dealerId)
-      return res.status(403).json({ error: "Not authorized to buy this order item" });
-    if (orderItem.status !== "PENDING")
-      return res.status(400).json({ error: "Order item is not pending" });
+    if (!orderItem)
+      return res.status(404).json({ error: "Order item not found" });
 
-    // Update order item status to "BOUGHT" and save onChainOrderId
+    if (orderItem.dealerId !== dealerId)
+      return res
+        .status(403)
+        .json({ error: "Not authorized to buy this order item" });
+
+    if (
+      orderItem.status !== "PENDING" &&
+      orderItem.status?.toUpperCase() !== "PENDING"
+    ) {
+      return res
+        .status(400)
+        .json({ error: `Order item is not pending (status: ${orderItem.status})` });
+    }
+
+    // Step 2: Save the onChainOrderId as string and update status
     await prisma.orderItem.update({
       where: { id: orderItemId },
       data: {
         status: "BOUGHT",
-        onChainOrderId: onChainOrderId,
+        onChainOrderId, // Save directly as string
       },
     });
 
-    // Create shipment log to notify manufacturer to ship medicines to dealer
+    // Step 3: Log the shipment to notify manufacturer
     await prisma.shipmentLog.create({
       data: {
         orderItemId: orderItemId,
@@ -277,7 +298,10 @@ router.post("/buy/:orderItemId", dealerAuthMiddleware, async (req, res) => {
       },
     });
 
-    return res.json({ success: true, message: "Order item marked as bought and shipment requested." });
+    return res.json({
+      success: true,
+      message: "Order item marked as bought and shipment requested.",
+    });
   } catch (error) {
     console.error("Error processing order item buy:", error);
     return res.status(500).json({ error: "Internal server error" });

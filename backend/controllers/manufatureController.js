@@ -117,6 +117,7 @@ router.get("/medicine/all", authenticateManufacturer, async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 router.get("/pending-orders", authenticateManufacturer, async (req, res) => {
   try {
     const manufacturerId = req.manufacturer.id;
