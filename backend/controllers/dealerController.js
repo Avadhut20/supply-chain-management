@@ -87,7 +87,7 @@ router.post("/signin", async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials." });
     }
-
+    const name = `${dealer.FirstName} ${dealer.LastName}`;
     const token = jwt.sign({ dealerId: dealer.id }, process.env.JWT_SECRET|| "secret");
 
     res.status(200).json({
@@ -105,20 +105,16 @@ router.post("/signin", async (req, res) => {
   }
 });
 
-
-
-
 const dealerAuthMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
+    console.log("Authorization Header:", authHeader);
 
     if (!authHeader ) {
       return res.status(401).json({ message: "Authorization header missing or malformed" });
     }
-
-
     const decoded = jwt.verify(authHeader, process.env.JWT_SECRET || "secret");
-
+    console.log("Decoded JWT:", decoded);
     if (decoded.role !== "DEALER") {
       return res.status(403).json({ message: "Access denied. Not a dealer." });
     }
@@ -220,8 +216,10 @@ router.get("/pending-orders", dealerAuthMiddleware, async (req, res) => {
 // POST /dealer/buy/:orderItemId
 router.post("/buy/:orderItemId", dealerAuthMiddleware, async (req, res) => {
   try {
-    const dealerId = req.dealerId;
+    const dealerId =  req.dealer.id;
     const orderItemId = parseInt(req.params.orderItemId);
+    console.log("Dealer ID:", dealerId);
+    console.log("Order Item ID:", orderItemId);
 
     // Find order item and verify ownership + status
     const orderItem = await prisma.orderItem.findUnique({
@@ -260,6 +258,88 @@ router.post("/buy/:orderItemId", dealerAuthMiddleware, async (req, res) => {
   } catch (error) {
     console.error("Error processing order item buy:", error);
     return res.status(500).json({ error: "Internal server error" });
+  }
+});
+// GET /dealer/receive-orders - fetch orders shipped by manufacturer
+router.get("/receive-orders", dealerAuthMiddleware, async (req, res) => {
+  try {
+    const dealerId = req.dealer.id;
+
+    // Fetch all shipped orders assigned to this dealer
+    const shippedOrders = await prisma.orderItem.findMany({
+      where: {
+        dealerId,
+        status: "SHIPPED",
+      },
+      include: {
+        patientOrder: {
+          include: {
+            patient: true,
+          },
+        },
+        product: true,
+      },
+    });
+
+    const formatted = shippedOrders.map((order) => ({
+      id: order.id,
+      patientName: req.dealer.FirstName +"  " + req.dealer.LastName,
+      patientEmail: req.dealer.Email,
+      medicineName: order.product.name,
+      quantity: order.quantity,
+    }));
+
+    return res.json({ orders: formatted });
+  } catch (err) {
+    console.error("Error fetching dealer receive orders:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+// POST /dealer/ship/:orderItemId
+router.post("/ship/:orderItemId", dealerAuthMiddleware, async (req, res) => {
+  try {
+    const dealerId = req.dealer.id;
+    const orderItemId = parseInt(req.params.orderItemId);
+
+    // Get the order item
+    const orderItem = await prisma.orderItem.findUnique({
+      where: { id: orderItemId },
+    });
+
+    if (!orderItem) {
+      return res.status(404).json({ error: "Order item not found" });
+    }
+
+    if (orderItem.dealerId !== dealerId) {
+      return res.status(403).json({ error: "Not authorized to ship this order" });
+    }
+
+    if (orderItem.status !== "SHIPPED") {
+      return res.status(400).json({ error: "Order must be bought before shipping" });
+    }
+
+    // Update status to DELIVERED
+    await prisma.orderItem.update({
+      where: { id: orderItemId },
+      data: {
+        status: "SHIPPED_DEALER",
+      },
+    });
+
+    // Create shipment log
+    await prisma.shipmentLog.create({
+      data: {
+        orderItemId,
+        fromRole: "DEALER",
+        toRole: "PATIENT",
+        statusNote: "Order shipped to patient",
+      },
+    });
+
+    res.json({ success: true, message: "Order shipped to patient successfully" });
+  } catch (error) {
+    console.error("Error in shipping order:", error);
+    res.status(500).json({ error: "Failed to ship the order" });
   }
 });
 

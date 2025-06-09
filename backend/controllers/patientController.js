@@ -130,6 +130,95 @@ const verifyPatientToken = (req, res, next) => {
       res.status(500).json({ message: "Failed to fetch prescribed medicines" });
     }
   });
+router.get("/receive-orders", verifyPatientToken, async (req, res) => {
+  try {
+    const patientId = req.P_ID;
+
+    const deliveredOrders = await prisma.orderItem.findMany({
+      where: {
+        status: "SHIPPED_DEALER",
+        patientOrder: {
+          patientId,
+        },
+      },
+      include: {
+        product: true,
+        dealer: true,
+      },
+    });
+
+    const orders = deliveredOrders.map((item) => ({
+      id: item.id,
+      medicineName: item.product.name,
+      quantity: item.quantity,
+      dealerName: `${item.dealer.FirstName} ${item.dealer.LastName}`,
+    }));
+
+    res.json({ orders });
+  } catch (err) {
+    console.error("Error fetching receive-orders:", err);
+    res.status(500).json({ error: "Failed to fetch receive-orders" });
+  }
+});
+router.post("/receive/:orderItemId", verifyPatientToken, async (req, res) => {
+  try {
+    const orderItemId = parseInt(req.params.orderItemId);
+
+    const order = await prisma.orderItem.update({
+      where: { id: orderItemId },
+      data: {
+        status: "DELIVERED",
+      },
+    });
+
+    await prisma.shipmentLog.create({
+      data: {
+        orderItemId,
+        fromRole: "DEALER",
+        toRole: "PATIENT",
+        statusNote: "Order received by patient",
+      },
+    });
+
+    res.json({ message: "Order marked as received." });
+  } catch (error) {
+    console.error("Error receiving order:", error);
+    res.status(500).json({ error: "Failed to mark as received." });
+  }
+});
+// GET /patient/purchase-history
+router.get("/purchase-history", verifyPatientToken, async (req, res) => {
+  try {
+    const patientId = req.P_ID;
+
+    const receivedOrders = await prisma.orderItem.findMany({
+      where: {
+        status: "DELIVERED",
+        patientOrder: {
+          patientId,
+        },
+      },
+      include: {
+        product: true,
+        dealer: true,
+      },
+      
+    });
+
+    const orders = receivedOrders.map((item) => ({
+      id: item.id,
+      medicineName: item.product.name,
+      quantity: item.quantity,
+      dealerName: `${item.dealer.FirstName} ${item.dealer.LastName}`,
+      
+    }));
+
+    res.json({ orders });
+  } catch (err) {
+    console.error("Error fetching purchase history:", err);
+    res.status(500).json({ error: "Failed to fetch purchase history" });
+  }
+});
 
 
 

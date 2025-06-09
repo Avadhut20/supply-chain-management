@@ -43,13 +43,14 @@ router.post("/signup", async (req, res) => {
 
 const authenticateManufacturer = async (req, res, next) => {
   const authHeader = req.headers.authorization;
-
+  
   // Check if token is provided
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Authorization token missing" });
   }
 
   const token = authHeader.split(" ")[1];
+  console.log("Received token:", token);
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
@@ -116,6 +117,70 @@ router.get("/medicine/all", authenticateManufacturer, async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+router.get("/pending-orders", authenticateManufacturer, async (req, res) => {
+  try {
+    const manufacturerId = req.manufacturer.id;
 
+    const pendingOrders = await prisma.orderItem.findMany({
+      where: {
+        manufacturerId,
+        status: "BOUGHT",
+      },
+      include: {
+        product: true,
+        patientOrder: {
+          include: {
+            patient: true,
+          },
+        },
+        dealer: true,
+      },
+    });
+
+    const formatted = pendingOrders.map(order => ({
+      id: order.id,
+      medicineName: order.product.name,
+      quantity: order.quantity,
+      dealerName: order.dealer?.FirstName + " " + order.dealer?.LastName,
+      hospitalName: order.patientOrder.patient.hospitalName || "N/A",
+    }));
+
+    res.json({ orders: formatted });
+  } catch (err) {
+    console.error("Error fetching manufacturer orders:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ----------------------- MARK ORDER AS SHIPPED ----------------------- */
+router.post("/ship/:orderItemId", authenticateManufacturer, async (req, res) => {
+  try {
+    const orderItemId = parseInt(req.params.orderItemId);
+
+    const orderItem = await prisma.orderItem.update({
+      where: { id: orderItemId },
+      data: {
+        status: "SHIPPED",
+      },
+    });
+
+    await prisma.shipmentLog.create({
+      data: {
+        orderItemId: orderItem.id,
+        fromRole: "MANUFACTURER",
+        toRole: "DEALER",
+        statusNote: "Order shipped by manufacturer",
+      },
+    });
+
+    res.json({ success: true, message: "Order marked as shipped" });
+  } catch (err) {
+    console.error("Error shipping order:", err);
+    res.status(500).json({ message: "Failed to update shipment status" });
+  }
+});
+
+
+module.exports = router;
 
 module.exports=router
