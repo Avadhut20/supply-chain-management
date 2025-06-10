@@ -118,7 +118,7 @@ const dealerAuthMiddleware = async (req, res, next) => {
     if (decoded.role !== "DEALER") {
       return res.status(403).json({ message: "Access denied. Not a dealer." });
     }
-
+       console.log("sdsd");
     // Optional: Fetch dealer from DB if you want to attach it to req
     const dealer = await prisma.dealer.findUnique({
       where: { id: decoded.id },

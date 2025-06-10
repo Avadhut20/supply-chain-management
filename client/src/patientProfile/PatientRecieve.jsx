@@ -42,6 +42,7 @@ const PatientRecieve = () => {
         headers: { Authorization: token },
       });
       setOrders(data.orders || []);
+      console.log(data.orders);
     } catch (error) {
       console.error("Failed to fetch patient receive orders", error);
       alert("Error fetching orders. See console for details.");
@@ -110,14 +111,17 @@ const PatientRecieve = () => {
             <tr className="bg-gray-100">
               <th className="px-4 py-2 border">Medicine</th>
               <th className="px-4 py-2 border">Quantity</th>
+                <th className="py-2 px-4 border">Price (₹)</th>
               <th className="px-4 py-2 border">Actions</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order) => (
+              // console.log(order);
               <tr key={order.id} className="border-t text-center">
                 <td className="px-4 py-2">{order.medicineName}</td>
                 <td className="px-4 py-2">{order.quantity}</td>
+                 <td className="py-2 px-4 border">₹{order.price}</td>
                 <td className="px-4 py-2">
                   <button
                     className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"

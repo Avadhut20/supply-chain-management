@@ -194,7 +194,8 @@ router.get("/receive-orders", verifyPatientToken, async (req, res) => {
       quantity: item.quantity,
       dealerName: `${item.dealer.FirstName} ${item.dealer.LastName}`,
       onChainOrderId: item.onChainOrderId, 
-     patientWalletAddress: item.patientOrder.patient.walletAddress 
+      price:item.product.price,
+      patientWalletAddress: item.patientOrder.patient.walletAddress 
       // Include onChainOrderId
     }));
 

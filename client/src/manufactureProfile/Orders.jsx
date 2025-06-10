@@ -126,14 +126,14 @@ const handleShip = async (order) => {
   if (loading) return <p className="text-center mt-10">Loading orders...</p>;
 
   return (
-    <div className="max-w-6xl mx-auto mt-10 p-6 bg-white shadow rounded-lg">
+    <div className="max-w-6xl mx-auto mt-10 p-6  shadow rounded-lg">
       <h2 className="text-2xl font-bold mb-6">Pending Orders for Manufacturing</h2>
       {orders.length === 0 ? (
         <p className="text-gray-600">No pending orders.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full border">
-            <thead className="bg-gray-100">
+            <thead className="">
               <tr>
                 <th className="text-left px-4 py-2">Order ID</th>
                 <th className="text-left px-4 py-2">Medicine</th>

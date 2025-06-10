@@ -43,7 +43,7 @@ router.post("/signup", async (req, res) => {
 
 const authenticateManufacturer = async (req, res, next) => {
   const authHeader = req.headers.authorization;
-  
+  console.log(authHeader);
   // Check if token is provided
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Authorization token missing" });
@@ -186,15 +186,15 @@ router.post("/ship/:orderItemId", authenticateManufacturer, async (req, res) => 
 router.get("/shipped", authenticateManufacturer, async (req, res) => {
   try {
     const manufacturerId = req.manufacturer.id;
-
+  console.log(manufacturerId);
     const shippedOrders = await prisma.orderItem.findMany({
       where: {
-        status: "SHIPPED_DEALER",
+        status: "DELIVERED", // this must match your Prisma enum string exactly
         manufacturerId: manufacturerId,
       },
       include: {
         product: true,
-        manufacturer: true, // include manufacturer instead of dealer
+        manufacturer: true,
         patientOrder: {
           include: {
             patient: true,
@@ -202,14 +202,20 @@ router.get("/shipped", authenticateManufacturer, async (req, res) => {
         },
       },
     });
+  console.log(shippedOrders);
+    const orders = shippedOrders.map((item) => {
+      const patient = item.patientOrder?.patient;
+      const patientName = patient
+        ? `${patient.First_Name || ""} ${patient.Last_Name || ""}`.trim()
+        : "Unknown Patient";
 
-    const orders = shippedOrders.map((item) => ({
-  id: item.id,
-  medicineName: item.product.name,
-  quantity: item.quantity,
-  patientName: `${item.patientOrder.patient.First_Name} ${item.patientOrder.patient.Last_Name}`,
-}));
-
+      return {
+        id: item.id,
+        medicineName: item.product?.name || "Unknown Medicine",
+        quantity: item.quantity,
+        patientName,
+      };
+    });
 
     res.json({ orders });
   } catch (err) {
@@ -217,6 +223,7 @@ router.get("/shipped", authenticateManufacturer, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch shipped orders" });
   }
 });
+
 
 
 module.exports = router;

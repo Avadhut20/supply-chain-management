@@ -47,7 +47,7 @@ const handleSubmit = async (e) => {
     );
     console.log(res);
 
-    toast.success("Medicine created successfully");
+   alert("Medicine created successfully");
   } catch (err) {
     console.error("Create medicine error:", err);
     toast.error(err.response?.data?.message || "Failed to create medicine");
